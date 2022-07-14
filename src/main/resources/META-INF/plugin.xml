@@ -1,0 +1,20 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>space.whitememory.python-inlay-params</id>
+    <name>Python Inlay Params</name>
+    <vendor url="https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params">WhiteMemory99</vendor>
+
+    <description><![CDATA[
+      This plugin adds inlay parameter hints support for <b>Python</b>.
+      It was infuriating to see this feature missing, so let's fix that!
+    ]]></description>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.python</depends>
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <codeInsight.parameterNameHints language="Python"
+                                        implementationClass="space.whitememory.pythoninlayparams.PythonInlayHintsProvider"/>
+    </extensions>
+</idea-plugin>
