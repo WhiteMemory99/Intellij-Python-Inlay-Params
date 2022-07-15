@@ -1,4 +1,4 @@
-# Python Inlay Hints
+# Python Inlay Params
 
 ![Build](https://github.com/WhiteMemory99/intellij-python-inlay-params/workflows/Build/badge.svg)
 ![Downloads](https://img.shields.io/jetbrains/plugin/d/19538-python-inlay-params)
