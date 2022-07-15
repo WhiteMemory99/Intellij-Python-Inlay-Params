@@ -2,7 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This plugin _(quite decently)_ implements inlay parameter hints support for <b>Python</b>.
+<!-- Plugin description -->
+This plugin _(quite decently)_ implements inlay parameter hints for **Python**.
 
 ##  Supported expressions
 
@@ -12,6 +13,7 @@ Pretty much any expression is supported:
 * decorators
 * function calls
 * etc.  
+<!-- Plugin description end -->
 
 **Look at the examples below to see how it works.**
 
@@ -23,6 +25,6 @@ The plugin can be disabled anytime in IDE settings:
 
 ## Demo Screenshots
 
-![](./images/func_example.png)
+![](.github/readme/func_example.png)
 
-![](./images/class_example.png) 
+![](.github/readme/class_example.png) 

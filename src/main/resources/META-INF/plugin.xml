@@ -4,11 +4,6 @@
     <name>Python Inlay Params</name>
     <vendor>WhiteMemory99</vendor>
 
-    <description><![CDATA[
-      This plugin adds inlay parameter hints support for <b>Python</b>.
-      It was infuriating to see this feature missing, so let's fix that!
-    ]]></description>
-
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.python</depends>
     <depends>com.intellij.modules.platform</depends>
