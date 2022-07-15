@@ -42,8 +42,6 @@ The plugin can be disabled anytime in IDE settings:
 
 <kbd>Settings</kbd> -> <kbd>Editor</kbd> -> <kbd>Inlay Hints</kbd> -> <kbd>Parameter names</kbd> -> <kbd>Python</kbd>
 
-## Demo Screenshots
+## Demo Screenshot
 
-![](.github/readme/func_example.png)
-
-![](.github/readme/class_example.png) 
+![](.github/readme/plugin_demo.png)
