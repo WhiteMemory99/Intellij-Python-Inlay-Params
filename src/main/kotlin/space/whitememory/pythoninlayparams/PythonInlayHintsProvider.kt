@@ -40,7 +40,7 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
 
         // Handle lambda expression calls
         if (resolved is PyTargetExpression) {
-            // Use the target to find the lambda expression object, and assign it for making hints
+            // Use the target to find the lambda expression object, and assign it to get its parameters up ahead
             resolved = PsiTreeUtil.getNextSiblingOfType(resolved, PyLambdaExpression::class.java) ?: return inlayInfos
         }
 
@@ -77,7 +77,7 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
             if (param is PyNamedParameter && param.isPositionalContainer) {
                 // This is an *args parameter that takes more than one argument
                 // So we stop the further processing of this call expression
-                inlayInfos.add(InlayInfo("...${paramName}", arg.textOffset))
+                inlayInfos.add(InlayInfo("...$paramName", arg.textOffset))
                 return inlayInfos
             }
 
@@ -93,7 +93,7 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
 
     /**
      * Get the parameters of the element, but filter out the ones that are not needed.
-     * For example, if the element is a class init method, we don't want to show the __self__ parameter.
+     * For example, if the element is a class method, we don't want to show the __self__ parameter.
      */
     private fun getElementFilteredParameters(element: PsiElement): List<PyParameter> {
         element.children.forEach {
