@@ -1,11 +1,10 @@
 # Python Inlay Hints
 
+![Build](https://github.com/WhiteMemory99/intellij-python-inlay-params/workflows/Build/badge.svg)
+![Downloads](https://img.shields.io/jetbrains/plugin/d/19538-python-inlay-params)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<!-- Plugin description -->
-This plugin _(quite decently)_ implements inlay parameter hints for **Python**.
-
-## Installation
+## Quick Installation
 
 - Using IDE built-in plugin system:
 
@@ -18,7 +17,12 @@ This plugin _(quite decently)_ implements inlay parameter hints for **Python**.
   install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
-## Supported expressions
+## Description
+
+<!-- Plugin description -->
+This plugin _(quite decently)_ implements inlay parameter hints for **Python**.
+
+### Supported expressions
 
 Pretty much any expression is supported:
 
