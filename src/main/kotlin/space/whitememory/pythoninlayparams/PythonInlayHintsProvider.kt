@@ -15,6 +15,8 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
 
     override fun getDefaultBlackList() = setOf<String>()
 
+    override fun isBlackListSupported() = false
+
     override fun getParameterHints(element: PsiElement): MutableList<InlayInfo> {
         val inlayInfos = mutableListOf<InlayInfo>()
 
@@ -62,8 +64,7 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
         }
 
         val resolvedParameters = getElementFilteredParameters(resolved)
-        // If there's no parameters in the object, we use the dataclass attributes instead,
-        // if there is any.
+        // If there's no parameters in the object, we use the dataclass attributes instead, if there is any
         if (resolvedParameters.isEmpty() && dataclassAttributes.isNotEmpty()) {
             dataclassAttributes.zip(args).forEach {
                 inlayInfos.add(InlayInfo(it.first, it.second.textOffset))
