@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>space.whitememory.python-inlay-params</id>
     <name>Python Inlay Params</name>
-    <vendor url="https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params">WhiteMemory99</vendor>
+    <vendor>WhiteMemory99</vendor>
 
     <description><![CDATA[
       This plugin adds inlay parameter hints support for <b>Python</b>.
