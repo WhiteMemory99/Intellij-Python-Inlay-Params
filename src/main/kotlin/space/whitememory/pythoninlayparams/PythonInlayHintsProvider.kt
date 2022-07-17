@@ -80,6 +80,12 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
 
         resolvedParameters.zip(args).forEach { (param, arg) ->
             val paramName = param.name ?: return@forEach
+            if (arg is PyKeywordArgument || arg is PyStarArgument) {
+                // Keyword arguments and unpacking don't need a hint,
+                // Keep for proper ordering and to avoid displaying issues
+                return@forEach
+            }
+
             if (param is PyNamedParameter && param.isPositionalContainer) {
                 // This is an *args parameter that takes more than one argument
                 // So we stop the further processing of this call expression
@@ -87,15 +93,9 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
                 return inlayInfos
             }
 
-            // The argument is unpacking, we don't want to show hints any further
-            // Because we can't be sure what parameters it covers
-            if (arg is PyStarArgument) {
-                return inlayInfos
-            }
-
             // Skip this parameter if its name starts with __,
             // or equals to the argument provided
-            if (arg !is PyKeywordArgument && paramName != arg.name && !paramName.startsWith("__")) {
+            if (paramName != arg.name && !paramName.startsWith("__")) {
                 // TODO: Add more complex filters
                 inlayInfos.add(InlayInfo(paramName, arg.textOffset))
             }
