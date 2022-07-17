@@ -1,6 +1,13 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Fixed
+
+## [0.1.1] - 2022-07-17
 ### Fixed
 - Wrong hints behavior with some classes, related to the `__init__` inheritance logic
 - Wrong hint ordering when a positional argument is passed after keyword arguments
@@ -9,4 +16,3 @@
 ## [0.1.0] - 2022-07-15
 ### Added
 - Initial plugin release
-
