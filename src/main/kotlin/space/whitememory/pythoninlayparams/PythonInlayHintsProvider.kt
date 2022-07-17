@@ -26,9 +26,10 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
             return inlayInfos
         }
 
-        // Get the arguments of the call expression, excluding unpacking (*array and **dict)
-        val args = element.arguments.filter { it !is PyStarArgument && it !is PyKeywordArgument }
-        if (args.isEmpty()) {
+        // Get the arguments of the call expression and quit if there are no arguments
+        // or the only argument is unpacking (*list, **dict)
+        val args = element.arguments
+        if (args.isEmpty() || (args.size == 1 && args[0] is PyStarArgument)) {
             return inlayInfos
         }
 
@@ -45,6 +46,7 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
         }
 
         val dataclassAttributes = mutableListOf<String>()
+        var hasExplicitInit = false
         if (resolved is PyClass) {
             // This call is made by a class (initialization), so we want to find the parameters it takes.
             // In order to do so, we first have to check for an init method, and if not found,
@@ -56,16 +58,20 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
             }
 
             val evalContext = TypeEvalContext.codeAnalysis(element.project, element.containingFile)
-            val initMethod = resolved.findMethodByName("__init__", true, evalContext)
-            if (initMethod != null) {
-                // Use the __init__ we found as the function to get parameters from
-                resolved = initMethod
+            val initMethod = resolved.findMethodByName("__init__", false, evalContext)
+            resolved = if (initMethod != null) {
+                // Take a note that this class has init
+                hasExplicitInit = true
+                initMethod
+            } else {
+                // Try to find init in its parent classes instead, otherwise stick to the attributes
+                resolved.findMethodByName("__init__", true, evalContext) ?: resolved
             }
         }
 
         val resolvedParameters = getElementFilteredParameters(resolved)
         // If there's no parameters in the object, we use the dataclass attributes instead, if there is any
-        if (resolvedParameters.isEmpty() && dataclassAttributes.isNotEmpty()) {
+        if (resolvedParameters.isEmpty() && dataclassAttributes.isNotEmpty() && !hasExplicitInit) {
             dataclassAttributes.zip(args).forEach {
                 inlayInfos.add(InlayInfo(it.first, it.second.textOffset))
             }
@@ -81,9 +87,16 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
                 return inlayInfos
             }
 
+            // The argument is unpacking, we don't want to show hints any further
+            // Because we can't be sure what parameters it covers
+            if (arg is PyStarArgument) {
+                return inlayInfos
+            }
+
             // Skip this parameter if its name starts with __,
             // or equals to the argument provided
-            if (paramName != arg.name && !paramName.startsWith("__")) {
+            if (arg !is PyKeywordArgument && paramName != arg.name && !paramName.startsWith("__")) {
+                // TODO: Add more complex filters
                 inlayInfos.add(InlayInfo(paramName, arg.textOffset))
             }
         }
