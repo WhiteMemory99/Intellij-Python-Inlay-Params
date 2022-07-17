@@ -60,7 +60,7 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
             val evalContext = TypeEvalContext.codeAnalysis(element.project, element.containingFile)
             val initMethod = resolved.findMethodByName("__init__", false, evalContext)
             resolved = if (initMethod != null) {
-                // Take a note that this class has init
+                // Take a note that this class has init, prioritize it over the attributes
                 hasExplicitInit = true
                 initMethod
             } else {
