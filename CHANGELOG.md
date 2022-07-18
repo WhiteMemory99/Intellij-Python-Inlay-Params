@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Hide the hints that are 1 character long
+
 ### Fixed
 - Hints showing when placing a positional argument after keyword ones
 
