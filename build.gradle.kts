@@ -28,7 +28,7 @@ intellij {
 changelog {
     version.set(properties("pluginVersion"))
     header.set(provider { "[${version.get()}] - ${date()}" })
-    groups.set(listOf("Added", "Changed", "Fixed"))
+    groups.set(emptyList())
 }
 
 tasks {
