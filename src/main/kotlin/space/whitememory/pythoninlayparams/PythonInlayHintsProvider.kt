@@ -75,8 +75,11 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
         }
 
         if (finalParameters.size == 1) {
-            // Don't need a hint if there's only one parameter
-            return inlayInfos
+            // Don't need a hint if there's only one parameter,
+            // Make an exception for *args
+            finalParameters[0].let {
+                if (it !is PyNamedParameter || !it.isPositionalContainer) return inlayInfos
+            }
         }
 
         finalParameters.zip(element.arguments).forEach { (param, arg) ->
