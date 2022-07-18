@@ -1,6 +1,20 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Fixed
+
+## [0.1.2] - 2022-07-18
+### Added
+
+### Changed
+
+### Fixed
+
+## [0.1.2] - 2022-07-18
 ### Fixed
 - `**kwargs` parameter being shown in certain situations
 - Class hints based on their attributes were shown incorrectly
