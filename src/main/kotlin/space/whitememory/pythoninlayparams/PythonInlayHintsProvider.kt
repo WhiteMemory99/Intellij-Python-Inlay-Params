@@ -72,16 +72,32 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
         val resolvedParameters = getElementFilteredParameters(resolved)
         // If there's no parameters in the object, we use the dataclass attributes instead, if there is any
         if (resolvedParameters.isEmpty() && dataclassAttributes.isNotEmpty() && !hasExplicitInit) {
-            dataclassAttributes.zip(args).forEach {
-                inlayInfos.add(InlayInfo(it.first, it.second.textOffset))
+            dataclassAttributes.zip(args).forEach { (attr, arg) ->
+                if (arg is PyStarArgument) {
+                    // It's unpacking, so we don't need to show hits after this
+                    return inlayInfos
+                }
+                if (arg is PyKeywordArgument) {
+                    // Keyword arguments don't need a hint,
+                    // Keep for proper ordering and to avoid displaying issues
+                    return@forEach
+                }
+                
+                if (isHintNameValid(attr, arg)) {
+                    inlayInfos.add(InlayInfo(attr, arg.textOffset))
+                }
             }
             return inlayInfos
         }
 
         resolvedParameters.zip(args).forEach { (param, arg) ->
             val paramName = param.name ?: return@forEach
-            if (arg is PyKeywordArgument || arg is PyStarArgument) {
-                // Keyword arguments and unpacking don't need a hint,
+            if (arg is PyStarArgument) {
+                // It's unpacking, so we don't need to show hits after this
+                return inlayInfos
+            }
+            if (arg is PyKeywordArgument) {
+                // Keyword arguments don't need a hint,
                 // Keep for proper ordering and to avoid displaying issues
                 return@forEach
             }
@@ -93,15 +109,21 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
                 return inlayInfos
             }
 
-            // Skip this parameter if its name starts with __,
-            // or equals to the argument provided
-            if (paramName != arg.name && !paramName.startsWith("__")) {
-                // TODO: Add more complex filters
+            if (isHintNameValid(paramName, arg)) {
                 inlayInfos.add(InlayInfo(paramName, arg.textOffset))
             }
         }
 
         return inlayInfos
+    }
+
+    /**
+     * Checks if the given parameter name is valid for the given argument.
+     * This is used to skip parameters that start with __, or are the same as the argument.
+     */
+    private fun isHintNameValid(name: String, argument: PyExpression): Boolean {
+        // TODO: More filters
+        return name != argument.name && !name.startsWith("__")
     }
 
     /**
@@ -111,7 +133,9 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
     private fun getElementFilteredParameters(element: PsiElement): List<PyParameter> {
         element.children.forEach {
             if (it is PyParameterList) {
-                return it.parameters.filter { param -> !param.isSelf }
+                return it.parameters.filter { param ->
+                    !param.isSelf && (param !is PyNamedParameter || !param.isKeywordContainer)
+                }
             }
         }
         return emptyList()

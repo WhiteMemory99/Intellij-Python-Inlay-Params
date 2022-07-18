@@ -1,11 +1,10 @@
 # Changelog
 
 ## [Unreleased]
-### Added
-
-### Changed
-
 ### Fixed
+- `**kwargs` parameter being shown in certain situations
+- Class hints based on their attributes were shown incorrectly
+- Fix hints display for calls with unpacking
 
 ## [0.1.1] - 2022-07-17
 ### Fixed
