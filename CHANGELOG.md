@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Changed
 - Hide the hints that are 1 character long
+- Don't show hints in call expressions that take a single parameter
 
 ### Fixed
 - Hints showing when placing a positional argument after keyword ones

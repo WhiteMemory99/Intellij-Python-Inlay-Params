@@ -26,11 +26,10 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
             return inlayInfos
         }
 
-        // Get the arguments of the call expression and quit if there are no arguments
-        // or the only argument is unpacking (*list, **dict)
-        val args = element.arguments
-        if (args.isEmpty() || (args.size == 1 && args[0] is PyStarArgument)) {
-            return inlayInfos
+        // Don't show hints if there's no arguments
+        // Or the only argument is unpacking (*list, **dict)
+        element.arguments.let {
+            if (it.isEmpty() || (it.size == 1 && it[0] is PyStarArgument)) return inlayInfos
         }
 
         // Try to resolve the object that made this call
@@ -46,48 +45,39 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
             resolved = PsiTreeUtil.getNextSiblingOfType(resolved, PyLambdaExpression::class.java) ?: return inlayInfos
         }
 
-        val dataclassAttributes = mutableListOf<String>()
-        var hasExplicitInit = false
+        var classAttributes = listOf<PyTargetExpression>()
         if (resolved is PyClass) {
             // This call is made by a class (initialization), so we want to find the parameters it takes.
             // In order to do so, we first have to check for an init method, and if not found,
             // We will use the class attributes instead. (Handle dataclasses, attrs, etc.)
-            resolved.classAttributes.forEach {
-                // TODO: Somehow make sure we take only correct attributes
-                val attributeName = it.name ?: return@forEach
-                dataclassAttributes.add(attributeName)
-            }
-
             val evalContext = TypeEvalContext.codeAnalysis(element.project, element.containingFile)
             val initMethod = resolved.findMethodByName("__init__", false, evalContext)
             resolved = if (initMethod != null) {
-                // Take a note that this class has init, prioritize it over the attributes
-                hasExplicitInit = true
                 initMethod
             } else {
-                // Try to find init in its parent classes instead, otherwise stick to the attributes
+                classAttributes = resolved.classAttributes
                 resolved.findMethodByName("__init__", true, evalContext) ?: resolved
             }
         }
 
         val resolvedParameters = getElementFilteredParameters(resolved)
-        // If there's no parameters in the object, we use the dataclass attributes instead, if there is any
-        if (resolvedParameters.isEmpty() && dataclassAttributes.isNotEmpty() && !hasExplicitInit) {
-            dataclassAttributes.zip(args).forEach { (attr, arg) ->
-                if (arg is PyStarArgument || arg is PyKeywordArgument) {
-                    // It's a keyword argument or unpacking,
-                    // we don't need to show hits after this
-                    return inlayInfos
-                }
-                
-                if (isHintNameValid(attr, arg)) {
-                    inlayInfos.add(InlayInfo(attr, arg.textOffset))
-                }
-            }
+        val finalParameters = if (resolvedParameters.isEmpty() && classAttributes.isNotEmpty()) {
+            // If there's no parameters in the object,
+            // we use the class attributes instead,
+            // in case this is a class
+            classAttributes
+        } else if (resolvedParameters.isEmpty()) {
+            return inlayInfos
+        } else {
+            resolvedParameters
+        }
+
+        if (finalParameters.size == 1) {
+            // Don't need a hint if there's only one parameter
             return inlayInfos
         }
 
-        resolvedParameters.zip(args).forEach { (param, arg) ->
+        finalParameters.zip(element.arguments).forEach { (param, arg) ->
             val paramName = param.name ?: return@forEach
             if (arg is PyStarArgument || arg is PyKeywordArgument) {
                 // It's a keyword argument or unpacking,
