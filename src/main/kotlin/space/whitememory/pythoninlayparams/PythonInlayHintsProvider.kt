@@ -41,6 +41,7 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
 
         // Handle lambda expression calls
         if (resolved is PyTargetExpression) {
+            // TODO: Handle other cases besides lambda expressions
             // Use the target to find the lambda expression object, and assign it to get its parameters up ahead
             resolved = PsiTreeUtil.getNextSiblingOfType(resolved, PyLambdaExpression::class.java) ?: return inlayInfos
         }
@@ -73,14 +74,10 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
         // If there's no parameters in the object, we use the dataclass attributes instead, if there is any
         if (resolvedParameters.isEmpty() && dataclassAttributes.isNotEmpty() && !hasExplicitInit) {
             dataclassAttributes.zip(args).forEach { (attr, arg) ->
-                if (arg is PyStarArgument) {
-                    // It's unpacking, so we don't need to show hits after this
+                if (arg is PyStarArgument || arg is PyKeywordArgument) {
+                    // It's a keyword argument or unpacking,
+                    // we don't need to show hits after this
                     return inlayInfos
-                }
-                if (arg is PyKeywordArgument) {
-                    // Keyword arguments don't need a hint,
-                    // Keep for proper ordering and to avoid displaying issues
-                    return@forEach
                 }
                 
                 if (isHintNameValid(attr, arg)) {
@@ -92,14 +89,10 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
 
         resolvedParameters.zip(args).forEach { (param, arg) ->
             val paramName = param.name ?: return@forEach
-            if (arg is PyStarArgument) {
-                // It's unpacking, so we don't need to show hits after this
+            if (arg is PyStarArgument || arg is PyKeywordArgument) {
+                // It's a keyword argument or unpacking,
+                // we don't need to show hits after this
                 return inlayInfos
-            }
-            if (arg is PyKeywordArgument) {
-                // Keyword arguments don't need a hint,
-                // Keep for proper ordering and to avoid displaying issues
-                return@forEach
             }
 
             if (param is PyNamedParameter && param.isPositionalContainer) {

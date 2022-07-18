@@ -1,11 +1,8 @@
 # Changelog
 
 ## [Unreleased]
-### Added
-
-### Changed
-
 ### Fixed
+- Hints showing when placing a positional argument after keyword ones
 
 ## [0.1.2] - 2022-07-18
 ### Fixed
