@@ -55,6 +55,8 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
             resolved = if (initMethod != null) {
                 initMethod
             } else {
+                // Use the class attributes if there's no init with params in the parent classes
+                // TODO: Make sure wrong attributes are not used
                 classAttributes = resolved.classAttributes
                 resolved.findMethodByName("__init__", true, evalContext) ?: resolved
             }
