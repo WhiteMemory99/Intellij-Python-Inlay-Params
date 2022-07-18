@@ -28,8 +28,8 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
 
         // Don't show hints if there's no arguments
         // Or the only argument is unpacking (*list, **dict)
-        element.arguments.let {
-            if (it.isEmpty() || (it.size == 1 && it[0] is PyStarArgument)) return inlayInfos
+        if (element.arguments.isEmpty() || (element.arguments.size == 1 && element.arguments[0] is PyStarArgument)) {
+            return inlayInfos
         }
 
         // Try to resolve the object that made this call
