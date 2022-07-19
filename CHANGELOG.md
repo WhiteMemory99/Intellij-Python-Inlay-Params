@@ -7,6 +7,7 @@
 
 ### Fixed
 - Hints showing when placing a positional argument after keyword ones
+- Hints for classes that use `__new__`, like `datetime.datetime`
 
 ## [0.1.2] - 2022-07-18
 ### Fixed

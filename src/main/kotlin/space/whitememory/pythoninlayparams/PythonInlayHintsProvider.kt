@@ -51,14 +51,15 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
             // In order to do so, we first have to check for an init method, and if not found,
             // We will use the class attributes instead. (Handle dataclasses, attrs, etc.)
             val evalContext = TypeEvalContext.codeAnalysis(element.project, element.containingFile)
-            val initMethod = resolved.findMethodByName("__init__", false, evalContext)
-            resolved = if (initMethod != null) {
-                initMethod
+            val entryMethod = resolved.findInitOrNew(true, evalContext)
+
+            resolved = if (entryMethod != null && entryMethod.containingClass == resolved) {
+                entryMethod
             } else {
                 // Use the class attributes if there's no init with params in the parent classes
                 // TODO: Make sure wrong attributes are not used
                 classAttributes = resolved.classAttributes
-                resolved.findMethodByName("__init__", true, evalContext) ?: resolved
+                entryMethod ?: resolved
             }
         }
 
