@@ -1,9 +1,12 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.1.3] - 2022-07-19
 ### Changed
 - Hide the hints that are 1 character long
 - Don't show hints in call expressions that take a single parameter (except for `*args`)
+
 
 ### Fixed
 - Hints showing when placing a positional argument after keyword ones
