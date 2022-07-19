@@ -112,7 +112,7 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
      */
     private fun isHintNameValid(name: String, argument: PyExpression): Boolean {
         // TODO: More filters
-        return name != argument.name && !name.startsWith("__") && name.length > 1
+        return name != argument.name?.lowercase() && !name.startsWith("__") && name.length > 1
     }
 
     /**
