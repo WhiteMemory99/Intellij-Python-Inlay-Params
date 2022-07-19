@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- Hints not showing when there's one positional parameter with `**kwargs`
 
 ## [0.1.3] - 2022-07-19
 ### Changed

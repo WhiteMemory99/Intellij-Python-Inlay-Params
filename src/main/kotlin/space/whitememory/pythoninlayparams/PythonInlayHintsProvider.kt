@@ -91,11 +91,16 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
                 return inlayInfos
             }
 
-            if (param is PyNamedParameter && param.isPositionalContainer) {
-                // This is an *args parameter that takes more than one argument
-                // So we stop the further processing of this call expression
-                inlayInfos.add(InlayInfo("...$paramName", arg.textOffset))
-                return inlayInfos
+            if (param is PyNamedParameter) {
+                if (param.isPositionalContainer) {
+                    // This is an *args parameter that takes more than one argument
+                    // So we show it and stop the further processing of this call expression
+                    inlayInfos.add(InlayInfo("...$paramName", arg.textOffset))
+                    return inlayInfos
+                } else if (param.isKeywordContainer) {
+                    // We don't want to show `kwargs` as a hint by accident
+                    return inlayInfos
+                }
             }
 
             if (isHintNameValid(paramName, arg)) {
@@ -122,9 +127,7 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
     private fun getElementFilteredParameters(element: PsiElement): List<PyParameter> {
         element.children.forEach {
             if (it is PyParameterList) {
-                return it.parameters.filter { param ->
-                    !param.isSelf && (param !is PyNamedParameter || !param.isKeywordContainer)
-                }
+                return it.parameters.filter { param -> !param.isSelf }
             }
         }
         return emptyList()
