@@ -17,6 +17,8 @@ class PythonInlayHintsProvider : InlayParameterHintsProvider {
 
     override fun isBlackListSupported() = false
 
+    override fun getDescription() = "Help you pass correct arguments by showing parameter names at call sites"
+
     override fun getParameterHints(element: PsiElement): MutableList<InlayInfo> {
         val inlayInfos = mutableListOf<InlayInfo>()
 
