@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.1.4] - 2022-07-20
 ### Changed
 - Lower minimal build requirement to 2021.2
 
