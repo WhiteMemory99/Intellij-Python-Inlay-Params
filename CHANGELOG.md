@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Lower minimal build requirement to 2021.2
+
 ### Fixed
 - Hints not showing when there's one positional parameter with `**kwargs`
 
@@ -8,7 +11,6 @@
 ### Changed
 - Hide the hints that are 1 character long
 - Don't show hints in call expressions that take a single parameter (except for `*args`)
-
 
 ### Fixed
 - Hints showing when placing a positional argument after keyword ones
