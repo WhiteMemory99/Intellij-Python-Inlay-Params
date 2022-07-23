@@ -11,5 +11,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <codeInsight.inlayProvider language="Python"
                                         implementationClass="space.whitememory.pythoninlayparams.PythonInlayHintsProvider"/>
+        <codeInsight.parameterNameHints language="Python" implementationClass="space.whitememory.pythoninlayparams.PythonInlayHintsProvider"/>
+        <codeInsight.inlayProvider language="Python" implementationClass="space.whitememory.pythoninlayparams.PythonInlayTypeHintsProvider"/>
     </extensions>
 </idea-plugin>
