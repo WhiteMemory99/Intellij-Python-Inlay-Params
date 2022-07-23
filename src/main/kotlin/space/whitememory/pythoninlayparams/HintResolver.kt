@@ -74,18 +74,28 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext
         ): Boolean {
-            if (element is PyConditionalExpression) {
-                return resolveExpression(element.truePart, element.falsePart)
+            val assignmentValue = element.findAssignedValue()
+
+            if (assignmentValue is PyConditionalExpression) {
+                return resolveExpression(assignmentValue.truePart, assignmentValue.falsePart, typeEvalContext)
             }
 
-            if (element is PyBinaryExpression) {
-                return resolveExpression(element.leftExpression, element.rightExpression)
+            if (assignmentValue is PyBinaryExpression) {
+                return resolveExpression(assignmentValue.leftExpression, assignmentValue.rightExpression, typeEvalContext)
             }
 
             return true
         }
 
-        private fun resolveExpression(firstElement: PyExpression, secondElement: PyExpression?): Boolean {
+        private fun resolveExpression(
+            firstElement: PyExpression,
+            secondElement: PyExpression?,
+            typeEvalContext: TypeEvalContext
+        ): Boolean {
+            if (isLiteralExpression(firstElement) && isLiteralExpression(secondElement)) {
+                return false
+            }
+
             val falsePartExpression = firstElement is PyCallExpression
             val truePartExpression = secondElement is PyCallExpression
 
@@ -110,9 +120,35 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext
         ): Boolean {
-            if (element is PyComprehensionElement) {
+            val assignmentValue = element.findAssignedValue()
+
+            if (assignmentValue is PyComprehensionElement) {
                 if (typeAnnotation is PyCollectionType) {
                     return typeAnnotation.elementTypes.filterNotNull().isNotEmpty()
+                }
+
+                if (assignmentValue is PySetCompExpression) {
+                    return false
+                }
+            }
+
+            return true
+        }
+    },
+
+    LITERAL_EXPRESSION() {
+        override fun shouldShowTypeHint(
+            element: PyTargetExpression,
+            typeAnnotation: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): Boolean {
+            val assignedValue = element.findAssignedValue()
+
+            if (isLiteralExpression(element)) {
+                return try {
+                    !(assignedValue as PySequenceExpression).isEmpty
+                } catch (e: Exception) {
+                    false
                 }
             }
 
@@ -129,5 +165,9 @@ enum class HintResolver() {
     companion object {
         fun resolve(element: PyTargetExpression, typeAnnotation: PyType?, typeEvalContext: TypeEvalContext): Boolean =
             values().any { !it.shouldShowTypeHint(element, typeAnnotation, typeEvalContext) }
+
+        private fun isLiteralExpression(element: PyExpression?): Boolean {
+            return element is PySequenceExpression || element is PyLiteralExpression || element is PySetCompExpression
+        }
     }
 }
