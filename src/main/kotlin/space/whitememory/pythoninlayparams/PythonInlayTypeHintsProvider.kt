@@ -23,13 +23,7 @@ class PythonInlayTypeHintsProvider : InlayHintsProvider<PythonInlayTypeHintsProv
 
     override val previewText: String = ""
     override fun createConfigurable(settings: Settings): ImmediateConfigurable = object : ImmediateConfigurable {
-        override fun createComponent(listener: ChangeListener): JComponent = panel {
-            row {
-                checkBox("Test")
-            }
-        }
-
-        override val mainCheckboxText: String = "Test checkbox"
+        override fun createComponent(listener: ChangeListener): JComponent = panel { }
     }
 
     override fun getCollectorFor(
