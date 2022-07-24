@@ -29,7 +29,7 @@ Pretty much any expression is supported:
 * dataclass and class instantiation
 * lambdas
 * decorators
-* function calls
+* function and method calls
 * etc.
 
 <!-- Plugin description end -->
@@ -38,9 +38,11 @@ Pretty much any expression is supported:
 
 ## Settings
 
-The plugin can be disabled anytime in IDE settings:
+The plugin can be disabled entirely in the IDE settings:
 
 <kbd>Settings</kbd> -> <kbd>Editor</kbd> -> <kbd>Inlay Hints</kbd> -> <kbd>Parameter names</kbd> -> <kbd>Python</kbd>
+
+There are also more detailed settings in the same section that let you control the behavior of the plugin.
 
 ## Demo Screenshot
 

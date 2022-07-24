@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Detail plugin settings that let you disable parameter hints selectively
 
 ## [0.1.4] - 2022-07-20
 ### Changed
