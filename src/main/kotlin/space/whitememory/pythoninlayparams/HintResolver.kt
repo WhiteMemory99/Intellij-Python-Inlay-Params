@@ -61,6 +61,12 @@ enum class HintResolver() {
                 && assignedValue is PyCallExpression
                 && PyCallExpressionHelper.resolveCalleeClass(assignedValue) != null
             ) {
+                if (typeAnnotation.isBuiltin) {
+                    return values()
+                        .filter { it != CLASS_HINT }
+                        .all { it.shouldShowTypeHint(element, typeAnnotation, typeEvalContext)}
+                }
+
                 return false
             }
 
@@ -122,17 +128,39 @@ enum class HintResolver() {
         ): Boolean {
             val assignmentValue = element.findAssignedValue()
 
-            if (assignmentValue is PyComprehensionElement) {
+            if (assignmentValue is PyComprehensionElement ) {
                 if (typeAnnotation is PyCollectionType) {
                     return typeAnnotation.elementTypes.filterNotNull().isNotEmpty()
                 }
 
-                if (assignmentValue is PySetCompExpression) {
+                if (assignmentValue is PySetCompExpression || assignmentValue is PyDictCompExpression) {
                     return false
                 }
             }
 
             return true
+        }
+    },
+
+    SET_HINT() {
+        private val collectionNames = setOf("frozenset", "set")
+
+        override fun shouldShowTypeHint(
+            element: PyTargetExpression,
+            typeAnnotation: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): Boolean {
+            val assignmentValue = element.findAssignedValue()
+
+            if (assignmentValue !is PyCallExpression) {
+                return true
+            }
+
+            val resolvedClass = PyCallExpressionHelper.resolveCalleeClass(assignmentValue) ?: return true
+
+            return collectionNames.contains(resolvedClass.name)
+                    && typeAnnotation?.isBuiltin == true
+                    && (typeAnnotation as PyCollectionType).elementTypes.filterNotNull().isNotEmpty()
         }
     },
 
@@ -144,7 +172,7 @@ enum class HintResolver() {
         ): Boolean {
             val assignedValue = element.findAssignedValue()
 
-            if (isLiteralExpression(element)) {
+            if (isLiteralExpression(assignedValue)) {
                 return try {
                     !(assignedValue as PySequenceExpression).isEmpty
                 } catch (e: Exception) {
