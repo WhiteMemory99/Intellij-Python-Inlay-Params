@@ -13,7 +13,7 @@ enum class HintGenerator {
 
             return type.members
                 .filterNotNull()
-                .joinToString(separator = " | ", limit = 2) { generateTypeHintText(it, typeEvalContext) }
+                .joinToString(separator = " | ", limit = 3) { generateTypeHintText(it, typeEvalContext) }
         }
     },
 

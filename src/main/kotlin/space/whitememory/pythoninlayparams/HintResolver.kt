@@ -69,7 +69,7 @@ enum class HintResolver() {
                 if (typeAnnotation.isBuiltin || assignedValue.callee?.reference?.resolve() is PyFunction) {
                     return values()
                         .filter { it != CLASS_HINT }
-                        .all { it.shouldShowTypeHint(element, typeAnnotation, typeEvalContext)}
+                        .all { it.shouldShowTypeHint(element, typeAnnotation, typeEvalContext) }
                 }
 
                 return false
