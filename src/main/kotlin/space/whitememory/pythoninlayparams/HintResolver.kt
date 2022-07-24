@@ -66,7 +66,7 @@ enum class HintResolver() {
                 && assignedValue is PyCallExpression
                 && PyCallExpressionHelper.resolveCalleeClass(assignedValue) != null
             ) {
-                if (typeAnnotation.isBuiltin) {
+                if (typeAnnotation.isBuiltin || assignedValue.callee?.reference?.resolve() is PyFunction) {
                     return values()
                         .filter { it != CLASS_HINT }
                         .all { it.shouldShowTypeHint(element, typeAnnotation, typeEvalContext)}
@@ -163,8 +163,16 @@ enum class HintResolver() {
 
             val resolvedClass = PyCallExpressionHelper.resolveCalleeClass(assignmentValue) ?: return true
 
-            return collectionNames.contains(resolvedClass.name)
-                    && typeAnnotation?.isBuiltin == true
+            if (!collectionNames.contains(resolvedClass.name)) {
+                // TODO: Make it as option and think how to implement classmethod check for this
+                if (resolvedClass.name == typeAnnotation?.name) {
+                    return false
+                }
+
+                return true
+            }
+
+            return typeAnnotation?.isBuiltin == true
                     && (typeAnnotation as PyCollectionType).elementTypes.filterNotNull().isNotEmpty()
         }
     },
