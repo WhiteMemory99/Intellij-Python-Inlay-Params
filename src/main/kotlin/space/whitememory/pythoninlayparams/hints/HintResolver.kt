@@ -1,4 +1,4 @@
-package space.whitememory.pythoninlayparams
+package space.whitememory.pythoninlayparams.hints
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.jetbrains.python.PyNames
@@ -6,27 +6,20 @@ import com.jetbrains.python.psi.*
 import com.jetbrains.python.psi.impl.PyCallExpressionHelper
 import com.jetbrains.python.psi.impl.PyReferenceExpressionImpl
 import com.jetbrains.python.psi.types.*
+import space.whitememory.pythoninlayparams.variables.PythonVariablesInlayTypeHintsProvider
 
 enum class HintResolver() {
 
-    GENERAL_HINT() {
+    UNDERSCORE_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             if (element.name == PyNames.UNDERSCORE) {
-                return false
-            }
-
-            val hasTypeAnnotation = PsiTreeUtil.getNextSiblingOfType(element, PyAnnotation::class.java) != null
-
-            if (
-                typeAnnotation == null
-                || hasTypeAnnotation
-                || element.isQualified
-                || PyTypeChecker.isUnknown(typeAnnotation, false, typeEvalContext)
-            ) {
                 return false
             }
 
@@ -34,11 +27,44 @@ enum class HintResolver() {
         }
     },
 
-    CLASS_ATTRIBUTE_HINT() {
+    QUALIFIED_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
+        ): Boolean {
+            if (element.isQualified) {
+                return false
+            }
+
+            return true
+        }
+    },
+
+    GENERAL_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
+        override fun shouldShowTypeHint(
+            element: PyTargetExpression,
+            typeAnnotation: PyType?,
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
+        ): Boolean {
+            return shouldShowTypeHint(element, typeEvalContext)
+        }
+    },
+
+    CLASS_ATTRIBUTE_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = settings.showClassAttributeHints
+
+        override fun shouldShowTypeHint(
+            element: PyTargetExpression,
+            typeAnnotation: PyType?,
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             if (PyUtil.isClassAttribute(element)) {
                 return false
@@ -49,17 +75,20 @@ enum class HintResolver() {
     },
 
     UNION_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             if (typeAnnotation is PyUnionType) {
                 return typeAnnotation.members.any {
                     val type = it
 
-                    return values().any {
-                        shouldShowTypeHint(element, type, typeEvalContext)
+                    return resolveEnabled(settings).any {
+                        shouldShowTypeHint(element, type, typeEvalContext, settings)
                     }
                 }
             }
@@ -69,10 +98,13 @@ enum class HintResolver() {
     },
 
     CLASS_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             val assignedValue = unfoldParens(element.findAssignedValue())
 
@@ -82,9 +114,9 @@ enum class HintResolver() {
                 && PyCallExpressionHelper.resolveCalleeClass(assignedValue) != null
             ) {
                 if (typeAnnotation.isBuiltin || assignedValue.callee?.reference?.resolve() is PyFunction) {
-                    return values()
+                    return resolveEnabled(settings)
                         .filter { it != CLASS_HINT }
-                        .all { it.shouldShowTypeHint(element, typeAnnotation, typeEvalContext) }
+                        .all { it.shouldShowTypeHint(element, typeAnnotation, typeEvalContext, settings) }
                 }
 
                 return false
@@ -95,19 +127,25 @@ enum class HintResolver() {
     },
 
     CONDITIONAL_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             val assignmentValue = unfoldParens(element.findAssignedValue())
 
             if (assignmentValue is PyConditionalExpression) {
-                return resolveExpression(assignmentValue.truePart, assignmentValue.falsePart, typeEvalContext)
+                return resolveExpression(assignmentValue.truePart, assignmentValue.falsePart)
             }
 
             if (assignmentValue is PyBinaryExpression) {
-                return resolveExpression(assignmentValue.leftExpression, assignmentValue.rightExpression, typeEvalContext)
+                return resolveExpression(
+                    assignmentValue.leftExpression,
+                    assignmentValue.rightExpression
+                )
             }
 
             return true
@@ -115,8 +153,7 @@ enum class HintResolver() {
 
         private fun resolveExpression(
             firstElement: PyExpression,
-            secondElement: PyExpression?,
-            typeEvalContext: TypeEvalContext
+            secondElement: PyExpression?
         ): Boolean {
             if (isLiteralExpression(firstElement) && isLiteralExpression(secondElement)) {
                 return false
@@ -141,14 +178,17 @@ enum class HintResolver() {
     },
 
     COMPREHENSION_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             val assignmentValue = unfoldParens(element.findAssignedValue())
 
-            if (assignmentValue is PyComprehensionElement ) {
+            if (assignmentValue is PyComprehensionElement) {
                 if (typeAnnotation is PyCollectionType) {
                     return typeAnnotation.elementTypes.filterNotNull().isNotEmpty()
                 }
@@ -163,12 +203,15 @@ enum class HintResolver() {
     },
 
     SET_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         private val collectionNames = setOf("frozenset", "set")
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             val assignmentValue = unfoldParens(element.findAssignedValue())
 
@@ -193,10 +236,13 @@ enum class HintResolver() {
     },
 
     LITERAL_EXPRESSION() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             val assignedValue = unfoldParens(element.findAssignedValue())
 
@@ -213,10 +259,13 @@ enum class HintResolver() {
     },
 
     TUPLE_TYPE() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             if (typeAnnotation !is PyTupleType) {
                 return true
@@ -237,10 +286,13 @@ enum class HintResolver() {
     },
 
     ENUM_TYPE() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             val assignedValue = unfoldParens(element.findAssignedValue())
 
@@ -253,7 +305,7 @@ enum class HintResolver() {
             if (resolvedExpression is PyTargetExpression) {
                 return values()
                     .filter { it != ENUM_TYPE }
-                    .all { it.shouldShowTypeHint(resolvedExpression, typeAnnotation, typeEvalContext) }
+                    .all { it.shouldShowTypeHint(resolvedExpression, typeAnnotation, typeEvalContext, settings) }
             }
 
             return true
@@ -263,12 +315,24 @@ enum class HintResolver() {
     abstract fun shouldShowTypeHint(
         element: PyTargetExpression,
         typeAnnotation: PyType?,
-        typeEvalContext: TypeEvalContext
+        typeEvalContext: TypeEvalContext,
+        settings: PythonVariablesInlayTypeHintsProvider.Settings
     ): Boolean
 
+    abstract fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean
+
     companion object {
-        fun resolve(element: PyTargetExpression, typeAnnotation: PyType?, typeEvalContext: TypeEvalContext): Boolean =
-            values().any { !it.shouldShowTypeHint(element, typeAnnotation, typeEvalContext) }
+        fun resolve(element: PyTargetExpression, typeEvalContext: TypeEvalContext, settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean {
+            val typeAnnotation = getTypeAnnotation(element, typeEvalContext)
+
+            return resolveEnabled(settings).any {
+                !it.shouldShowTypeHint(element, typeAnnotation, typeEvalContext, settings)
+            }
+        }
+
+        private fun resolveEnabled(
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
+        ): List<HintResolver> = values().filter { it.isApplicable(settings) }
 
         private fun isLiteralExpression(element: PyExpression?): Boolean {
             return element is PySequenceExpression || element is PyLiteralExpression || element is PySetCompExpression
@@ -280,6 +344,46 @@ enum class HintResolver() {
             }
 
             return element
+        }
+
+        private fun hasTypeAnnotation(element: PyElement): Boolean {
+            if (element is PyFunction) {
+                return PsiTreeUtil.getChildOfType(element, PyAnnotation::class.java) != null
+            }
+
+            if (element is PyTargetExpression) {
+                return PsiTreeUtil.getNextSiblingOfType(element, PyAnnotation::class.java) != null
+            }
+
+            return false;
+        }
+
+        fun getTypeAnnotation(element: PyElement, typeEvalContext: TypeEvalContext): PyType? {
+            if (element is PyFunction) {
+                return typeEvalContext.getReturnType(element)
+            }
+
+            if (element is PyTargetExpression) {
+                return typeEvalContext.getType(element)
+            }
+
+            return null
+        }
+
+        fun shouldShowTypeHint(element: PyElement, typeEvalContext: TypeEvalContext): Boolean {
+            val hasTypeAnnotation = hasTypeAnnotation(element)
+            val typeAnnotation = getTypeAnnotation(element, typeEvalContext)
+
+            if (
+                typeAnnotation == null
+                || (element is PyFunction && typeAnnotation is PyNoneType)
+                || hasTypeAnnotation
+                || PyTypeChecker.isUnknown(typeAnnotation, false, typeEvalContext)
+            ) {
+                return false
+            }
+
+            return true
         }
     }
 }

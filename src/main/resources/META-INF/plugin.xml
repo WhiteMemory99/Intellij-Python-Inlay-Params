@@ -9,9 +9,8 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <codeInsight.inlayProvider language="Python"
-                                        implementationClass="space.whitememory.pythoninlayparams.PythonInlayHintsProvider"/>
-        <codeInsight.parameterNameHints language="Python" implementationClass="space.whitememory.pythoninlayparams.PythonInlayHintsProvider"/>
-        <codeInsight.inlayProvider language="Python" implementationClass="space.whitememory.pythoninlayparams.PythonInlayTypeHintsProvider"/>
+        <codeInsight.inlayProvider language="Python" implementationClass="space.whitememory.pythoninlayparams.PythonInlayHintsProvider"/>
+        <codeInsight.inlayProvider language="Python" implementationClass="space.whitememory.pythoninlayparams.variables.PythonVariablesInlayTypeHintsProvider"/>
+        <codeInsight.inlayProvider language="Python" implementationClass="space.whitememory.pythoninlayparams.functions.PythonFunctionInlayTypeHintsProvider"/>
     </extensions>
 </idea-plugin>

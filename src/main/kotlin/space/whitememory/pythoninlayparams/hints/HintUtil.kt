@@ -1,4 +1,4 @@
-package space.whitememory.pythoninlayparams
+package space.whitememory.pythoninlayparams.hints
 
 import com.jetbrains.python.psi.PyNamedParameter
 import com.jetbrains.python.psi.PyParameter
