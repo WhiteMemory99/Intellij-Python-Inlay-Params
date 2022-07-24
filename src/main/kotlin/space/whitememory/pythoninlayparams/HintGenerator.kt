@@ -96,7 +96,7 @@ enum class HintGenerator {
 
             val callableReturnType = typeEvalContext.getReturnType(type.callable)
 
-            return "$parametersText -> (${generateTypeHintText(callableReturnType, typeEvalContext)}"
+            return "$parametersText -> (${generateTypeHintText(callableReturnType, typeEvalContext)})"
         }
     },
 
