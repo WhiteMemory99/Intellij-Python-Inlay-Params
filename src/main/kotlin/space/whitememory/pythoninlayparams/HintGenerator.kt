@@ -1,5 +1,6 @@
 package space.whitememory.pythoninlayparams
 
+import com.jetbrains.python.PyNames
 import com.jetbrains.python.psi.PyLambdaExpression
 import com.jetbrains.python.psi.types.*
 
@@ -47,34 +48,32 @@ enum class HintGenerator {
     },
 
     TUPLE_TYPE() {
-        private val collectionName: String = "tuple"
-
         override fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String? {
             if (type !is PyTupleType) {
                 return null
             }
 
             if (type.elementCount == 0 || type.elementTypes.filterNotNull().isEmpty()) {
-                return collectionName
+                return PyNames.TUPLE
             }
 
             if (type.elementCount > 2) {
                 val firstElement = generateTypeHintText(type.elementTypes[0], typeEvalContext)
                 val secondElement = generateTypeHintText(type.elementTypes[1], typeEvalContext)
                 
-                return "$collectionName[$firstElement, $secondElement, ${type.elementCount - 2} more...]"
+                return "${PyNames.TUPLE}[$firstElement, $secondElement, ...]"
             }
             
             return type.elementTypes
                 .mapNotNull { generateTypeHintText(it, typeEvalContext) }
-                .joinToString(separator = ", ", prefix = "$collectionName[", postfix = "]")
+                .joinToString(separator = ", ", prefix = "${PyNames.TUPLE}[", postfix = "]")
         }
     },
 
     CLASS_TYPE() {
         override fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String? {
             if (type is PyClassType && type.isDefinition) {
-                return "$genericTypeName[${type.declarationElement?.name}]"
+                return "${PyNames.TYPE.replaceFirstChar { it.titlecaseChar() }}[${type.declarationElement?.name}]"
             }
 
             return null
@@ -101,18 +100,14 @@ enum class HintGenerator {
     },
 
     ANY_TYPE() {
-        private val anyTypeName = "Any"
-
         override fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String {
-            return type?.name ?: anyTypeName
+            return type?.name ?: PyNames.UNKNOWN_TYPE
         }
     };
 
     abstract fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String?
 
     companion object {
-        private const val genericTypeName: String = "Type"
-
         fun generateTypeHintText(type: PyType?, typeEvalContext: TypeEvalContext): String =
             values().firstNotNullOf { it.handleType(type, typeEvalContext) }
     }

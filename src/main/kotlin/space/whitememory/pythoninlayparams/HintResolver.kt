@@ -59,7 +59,7 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext
         ): Boolean {
-            val assignedValue = element.findAssignedValue()
+            val assignedValue = unfoldParens(element.findAssignedValue())
 
             if (
                 typeAnnotation is PyClassType
@@ -85,7 +85,7 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext
         ): Boolean {
-            val assignmentValue = element.findAssignedValue()
+            val assignmentValue = unfoldParens(element.findAssignedValue())
 
             if (assignmentValue is PyConditionalExpression) {
                 return resolveExpression(assignmentValue.truePart, assignmentValue.falsePart, typeEvalContext)
@@ -131,7 +131,7 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext
         ): Boolean {
-            val assignmentValue = element.findAssignedValue()
+            val assignmentValue = unfoldParens(element.findAssignedValue())
 
             if (assignmentValue is PyComprehensionElement ) {
                 if (typeAnnotation is PyCollectionType) {
@@ -155,7 +155,7 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext
         ): Boolean {
-            val assignmentValue = element.findAssignedValue()
+            val assignmentValue = unfoldParens(element.findAssignedValue())
 
             if (assignmentValue !is PyCallExpression) {
                 return true
@@ -183,7 +183,7 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext
         ): Boolean {
-            val assignedValue = element.findAssignedValue()
+            val assignedValue = unfoldParens(element.findAssignedValue())
 
             if (isLiteralExpression(assignedValue)) {
                 return try {
@@ -194,6 +194,30 @@ enum class HintResolver() {
             }
 
             return true
+        }
+    },
+
+    TUPLE_TYPE() {
+        override fun shouldShowTypeHint(
+            element: PyTargetExpression,
+            typeAnnotation: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): Boolean {
+            if (typeAnnotation !is PyTupleType) {
+                return true
+            }
+
+            if (typeAnnotation.elementTypes.filterNotNull().isEmpty()) {
+                return false
+            }
+
+            val assignedValue = unfoldParens(element.findAssignedValue())
+
+            if (assignedValue !is PyTupleExpression) {
+                return true
+            }
+
+            return assignedValue.elements.any { !isLiteralExpression(it) }
         }
     };
 
@@ -209,6 +233,14 @@ enum class HintResolver() {
 
         private fun isLiteralExpression(element: PyExpression?): Boolean {
             return element is PySequenceExpression || element is PyLiteralExpression || element is PySetCompExpression
+        }
+
+        private fun unfoldParens(element: PyExpression?): PyExpression? {
+            if (element is PyParenthesizedExpression) {
+                return element.containedExpression
+            }
+
+            return element
         }
     }
 }
