@@ -33,6 +33,20 @@ enum class HintResolver() {
         }
     },
 
+    CLASS_ATTRIBUTE_HINT() {
+        override fun shouldShowTypeHint(
+            element: PyTargetExpression,
+            typeAnnotation: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): Boolean {
+            if (PyUtil.isClassAttribute(element)) {
+                return false
+            }
+
+            return true
+        }
+    },
+
     UNION_HINT() {
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
