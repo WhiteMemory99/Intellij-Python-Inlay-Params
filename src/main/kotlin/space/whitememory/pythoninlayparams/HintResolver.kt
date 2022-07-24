@@ -1,6 +1,7 @@
 package space.whitememory.pythoninlayparams
 
 import com.intellij.psi.util.PsiTreeUtil
+import com.jetbrains.python.PyNames
 import com.jetbrains.python.psi.*
 import com.jetbrains.python.psi.impl.PyCallExpressionHelper
 import com.jetbrains.python.psi.types.*
@@ -13,6 +14,10 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext
         ): Boolean {
+            if (element.name == PyNames.UNDERSCORE) {
+                return false
+            }
+
             val hasTypeAnnotation = PsiTreeUtil.getNextSiblingOfType(element, PyAnnotation::class.java) != null
 
             if (
