@@ -4,6 +4,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.jetbrains.python.PyNames
 import com.jetbrains.python.psi.*
 import com.jetbrains.python.psi.impl.PyCallExpressionHelper
+import com.jetbrains.python.psi.impl.PyReferenceExpressionImpl
 import com.jetbrains.python.psi.types.*
 
 enum class HintResolver() {
@@ -232,6 +233,30 @@ enum class HintResolver() {
             }
 
             return assignedValue.elements.any { !isLiteralExpression(it) }
+        }
+    },
+
+    ENUM_TYPE() {
+        override fun shouldShowTypeHint(
+            element: PyTargetExpression,
+            typeAnnotation: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): Boolean {
+            val assignedValue = unfoldParens(element.findAssignedValue())
+
+            if (assignedValue !is PyReferenceExpressionImpl) {
+                return true
+            }
+
+            val resolvedExpression = assignedValue.reference.resolve() ?: return true
+
+            if (resolvedExpression is PyTargetExpression) {
+                return values()
+                    .filter { it != ENUM_TYPE }
+                    .all { it.shouldShowTypeHint(resolvedExpression, typeAnnotation, typeEvalContext) }
+            }
+
+            return true
         }
     };
 
