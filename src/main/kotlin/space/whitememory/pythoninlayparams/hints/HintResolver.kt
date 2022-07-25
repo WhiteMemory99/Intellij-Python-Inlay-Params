@@ -84,9 +84,7 @@ enum class HintResolver() {
             settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
             if (typeAnnotation is PyUnionType) {
-                return typeAnnotation.members.any {
-                    val type = it
-
+                return typeAnnotation.members.any { type ->
                     return resolveEnabled(settings).any {
                         shouldShowTypeHint(element, type, typeEvalContext, settings)
                     }
