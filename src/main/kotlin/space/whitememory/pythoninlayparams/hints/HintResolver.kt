@@ -12,18 +12,18 @@ import space.whitememory.pythoninlayparams.variables.PythonVariablesInlayTypeHin
 enum class HintResolver() {
 
     UNDERSCORE_HINT() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext,
             settings: PythonVariablesInlayTypeHintsProvider.Settings
-        ): Boolean =element.name != PyNames.UNDERSCORE
+        ): Boolean = element.name != PyNames.UNDERSCORE
     },
 
     QUALIFIED_HINT() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -34,7 +34,7 @@ enum class HintResolver() {
     },
 
     GENERAL_HINT() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -99,7 +99,7 @@ enum class HintResolver() {
     },
 
     EXCEPTION_HINT() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -121,7 +121,7 @@ enum class HintResolver() {
     },
 
     UNION_HINT() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -142,7 +142,7 @@ enum class HintResolver() {
     },
 
     CLASS_HINT() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -183,7 +183,7 @@ enum class HintResolver() {
     },
 
     CONDITIONAL_HINT() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -229,7 +229,7 @@ enum class HintResolver() {
     },
 
     COMPREHENSION_HINT() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -254,7 +254,7 @@ enum class HintResolver() {
     },
 
     SET_HINT() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         private val collectionNames = setOf("frozenset", PyNames.SET)
 
@@ -286,7 +286,7 @@ enum class HintResolver() {
     },
 
     LITERAL_EXPRESSION() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -309,7 +309,7 @@ enum class HintResolver() {
     },
 
     TUPLE_TYPE() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -336,7 +336,7 @@ enum class HintResolver() {
     },
 
     ENUM_TYPE() {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
