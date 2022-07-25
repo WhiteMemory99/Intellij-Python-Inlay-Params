@@ -18,7 +18,8 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
     data class Settings(
         var showClassAttributeHints: Boolean = false,
 //        var showListComprehensionHints: Boolean = false,
-        var showGeneralHints: Boolean = true
+        var showGeneralHints: Boolean = true,
+        var showShortCallable: Boolean = true
     )
 
     override val name = "Variables type hints"
@@ -41,6 +42,11 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
 //                "hints.comprehension",
 //                settings::showListComprehensionHints
 //            ),
+            ImmediateConfigurable.Case(
+                "Short callable hints",
+                "hints.callable.hints",
+                settings::showShortCallable
+            ),
             ImmediateConfigurable.Case(
                 "General type hints",
                 "hints.general",

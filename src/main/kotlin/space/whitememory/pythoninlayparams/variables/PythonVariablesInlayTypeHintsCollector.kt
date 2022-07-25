@@ -39,7 +39,7 @@ class PythonVariablesInlayTypeHintsCollector(editor: Editor, override val settin
             return true
         }
 
-        val typeAnnotation = HintResolver.getTypeAnnotation(element, typeEvalContext)
+        val typeAnnotation = HintResolver.getExpressionAnnotationType(element, typeEvalContext)
         val hintName = HintGenerator.generateTypeHintText(typeAnnotation, typeEvalContext)
 
         sink.addInlineElement(

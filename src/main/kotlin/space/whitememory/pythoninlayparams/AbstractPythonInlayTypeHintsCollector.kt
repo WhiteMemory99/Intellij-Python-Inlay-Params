@@ -2,11 +2,9 @@ package space.whitememory.pythoninlayparams
 
 import com.intellij.codeInsight.hints.FactoryInlayHintsCollector
 import com.intellij.codeInsight.hints.InlayHintsSink
-import com.intellij.codeInsight.hints.NoSettings
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.jetbrains.python.psi.PyElement
-import com.jetbrains.python.psi.types.PyType
 import com.jetbrains.python.psi.types.TypeEvalContext
 import space.whitememory.pythoninlayparams.hints.HintGenerator
 import space.whitememory.pythoninlayparams.hints.HintResolver
@@ -22,7 +20,7 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val se
     }
 
     protected fun renderTypeHint(element: PyElement, typeEvalContext: TypeEvalContext, sink: InlayHintsSink) {
-        val typeAnnotation = HintResolver.getTypeAnnotation(element, typeEvalContext)
+        val typeAnnotation = HintResolver.getExpressionAnnotationType(element, typeEvalContext)
         val hintName = HintGenerator.generateTypeHintText(typeAnnotation, typeEvalContext)
 
         displayTypeHint(element, sink, hintName)
