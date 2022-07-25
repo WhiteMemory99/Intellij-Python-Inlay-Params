@@ -61,15 +61,19 @@ enum class HintResolver {
             val assignedValue = element.findAssignedValue()
 
             if (assignedValue is PySubscriptionExpression) {
-                assignedValue.rootOperand.reference?.resolve().let {
+                assignedValue.rootOperand.reference?.resolve()?.let {
                     if (isElementInsideTypingModule(it as PyElement)) {
                         return false
                     }
                 }
             }
 
-            if (assignedValue is PyReferenceExpression && isElementInsideTypingModule(assignedValue.reference.resolve() as PyElement)) {
-                return false
+            if (assignedValue is PyReferenceExpression) {
+                assignedValue.reference.resolve()?.let {
+                    if (isElementInsideTypingModule(it as PyElement)) {
+                        return false
+                    }
+                }
             }
 
             return true
@@ -298,7 +302,9 @@ enum class HintResolver {
             if (isLiteralExpression(assignedValue)) {
                 if (typeAnnotation is PyTypedDictType && assignedValue is PySequenceExpression) {
                     // Handle case when dict contains all literal expressions
-                    return assignedValue.elements.none { it is PyKeyValueExpression && isLiteralExpression(it.value) }
+                    return assignedValue.elements.none {
+                        it is PyKeyValueExpression && isLiteralExpression(it.value)
+                    } && assignedValue.elements.isNotEmpty()
                 }
 
                 return try {
