@@ -19,11 +19,7 @@ enum class HintResolver() {
             typeEvalContext: TypeEvalContext,
             settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
-            if (element.name == PyNames.UNDERSCORE) {
-                return false
-            }
-
-            return true
+            return element.name != PyNames.UNDERSCORE
         }
     },
 
@@ -35,13 +31,7 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext,
             settings: PythonVariablesInlayTypeHintsProvider.Settings
-        ): Boolean {
-            if (element.isQualified) {
-                return false
-            }
-
-            return true
-        }
+        ): Boolean = !element.isQualified
     },
 
     GENERAL_HINT() {
@@ -57,6 +47,17 @@ enum class HintResolver() {
         }
     },
 
+    EXCEPTION_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = true
+
+        override fun shouldShowTypeHint(
+            element: PyTargetExpression,
+            typeAnnotation: PyType?,
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
+        ): Boolean = PsiTreeUtil.getParentOfType(element, PyExceptPart::class.java) == null
+    },
+
     CLASS_ATTRIBUTE_HINT() {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = settings.showClassAttributeHints
 
@@ -65,13 +66,7 @@ enum class HintResolver() {
             typeAnnotation: PyType?,
             typeEvalContext: TypeEvalContext,
             settings: PythonVariablesInlayTypeHintsProvider.Settings
-        ): Boolean {
-            if (PyUtil.isClassAttribute(element)) {
-                return false
-            }
-
-            return true
-        }
+        ): Boolean = !PyUtil.isClassAttribute(element)
     },
 
     UNION_HINT() {
