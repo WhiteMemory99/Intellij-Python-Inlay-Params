@@ -5,13 +5,12 @@ import com.jetbrains.python.PyNames
 import com.jetbrains.python.codeInsight.typing.PyTypingTypeProvider
 import com.jetbrains.python.psi.*
 import com.jetbrains.python.psi.impl.PyCallExpressionHelper
-import com.jetbrains.python.psi.impl.PyReferenceExpressionImpl
 import com.jetbrains.python.psi.types.*
 import space.whitememory.pythoninlayparams.variables.PythonVariablesInlayTypeHintsProvider
 
-enum class HintResolver() {
+enum class HintResolver {
 
-    UNDERSCORE_HINT() {
+    UNDERSCORE_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -22,7 +21,7 @@ enum class HintResolver() {
         ): Boolean = element.name != PyNames.UNDERSCORE
     },
 
-    QUALIFIED_HINT() {
+    QUALIFIED_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -33,7 +32,7 @@ enum class HintResolver() {
         ): Boolean = !element.isQualified
     },
 
-    GENERAL_HINT() {
+    GENERAL_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -46,7 +45,7 @@ enum class HintResolver() {
         }
     },
 
-    TYPING_MODULE_HINT() {
+    TYPING_MODULE_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -77,7 +76,7 @@ enum class HintResolver() {
         }
     },
 
-    GENERIC_HINT() {
+    GENERIC_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -98,7 +97,7 @@ enum class HintResolver() {
         }
     },
 
-    EXCEPTION_HINT() {
+    EXCEPTION_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -109,7 +108,7 @@ enum class HintResolver() {
         ): Boolean = PsiTreeUtil.getParentOfType(element, PyExceptPart::class.java) == null
     },
 
-    CLASS_ATTRIBUTE_HINT() {
+    CLASS_ATTRIBUTE_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = settings.showClassAttributeHints
 
         override fun shouldShowTypeHint(
@@ -120,7 +119,7 @@ enum class HintResolver() {
         ): Boolean = !PyUtil.isClassAttribute(element)
     },
 
-    UNION_HINT() {
+    UNION_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -141,7 +140,7 @@ enum class HintResolver() {
         }
     },
 
-    CLASS_HINT() {
+    CLASS_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -182,7 +181,7 @@ enum class HintResolver() {
         }
     },
 
-    CONDITIONAL_HINT() {
+    CONDITIONAL_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -216,8 +215,8 @@ enum class HintResolver() {
             }
 
             if (firstElement is PyCallExpression && secondElement is PyCallExpression) {
-                val isFalsePartClass = PyCallExpressionHelper.resolveCalleeClass(firstElement as PyCallExpression) != null
-                val isTruePartClass = PyCallExpressionHelper.resolveCalleeClass(secondElement as PyCallExpression) != null
+                val isFalsePartClass = PyCallExpressionHelper.resolveCalleeClass(firstElement) != null
+                val isTruePartClass = PyCallExpressionHelper.resolveCalleeClass(secondElement) != null
 
                 if (isFalsePartClass && isTruePartClass) {
                     return false
@@ -228,7 +227,7 @@ enum class HintResolver() {
         }
     },
 
-    COMPREHENSION_HINT() {
+    COMPREHENSION_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -253,7 +252,7 @@ enum class HintResolver() {
         }
     },
 
-    SET_HINT() {
+    SET_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         private val collectionNames = setOf("frozenset", PyNames.SET)
@@ -285,7 +284,7 @@ enum class HintResolver() {
         }
     },
 
-    LITERAL_EXPRESSION() {
+    LITERAL_EXPRESSION {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -313,7 +312,7 @@ enum class HintResolver() {
         }
     },
 
-    TUPLE_TYPE() {
+    TUPLE_TYPE {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -340,7 +339,7 @@ enum class HintResolver() {
         }
     },
 
-    ENUM_TYPE() {
+    ENUM_TYPE {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
