@@ -297,6 +297,11 @@ enum class HintResolver() {
             val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
             if (isLiteralExpression(assignedValue)) {
+                if (typeAnnotation is PyTypedDictType && assignedValue is PySequenceExpression) {
+                    // Handle case when dict contains all literal expressions
+                    return assignedValue.elements.none { it is PyKeyValueExpression && isLiteralExpression(it.value) }
+                }
+
                 return try {
                     !(assignedValue as PySequenceExpression).isEmpty
                 } catch (e: Exception) {
