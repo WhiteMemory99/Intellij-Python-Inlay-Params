@@ -300,11 +300,13 @@ enum class HintResolver {
             val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
             if (isLiteralExpression(assignedValue)) {
-                if (typeAnnotation is PyTypedDictType && assignedValue is PySequenceExpression) {
+                if ((typeAnnotation is PyTypedDictType || (typeAnnotation is PyClassType && typeAnnotation.pyClass.qualifiedName == PyNames.DICT)) && assignedValue is PySequenceExpression) {
                     // Handle case when dict contains all literal expressions
-                    return assignedValue.elements.none {
-                        it is PyKeyValueExpression && isLiteralExpression(it.value)
-                    } && assignedValue.elements.isNotEmpty()
+                    if (assignedValue.elements.isNotEmpty() && assignedValue.elements.all { it is PyKeyValueExpression && isLiteralExpression(it.value) }) {
+                        return false
+                    }
+
+                    return true
                 }
 
                 return try {
@@ -426,8 +428,15 @@ enum class HintResolver {
                 typeAnnotation == null
                 || (element is PyFunction && typeAnnotation is PyNoneType)
                 || (element is PyAnnotationOwner && element.annotation != null)
-                || PyTypeChecker.isUnknown(typeAnnotation, false, typeEvalContext)
             ) {
+                return false
+            }
+
+            if (typeAnnotation is PyUnionType) {
+                return !typeAnnotation.members.all { PyTypeChecker.isUnknown(it, false, typeEvalContext) || (it is PyNoneType || it == null) }
+            }
+
+            if (PyTypeChecker.isUnknown(typeAnnotation, false, typeEvalContext)) {
                 return false
             }
 
