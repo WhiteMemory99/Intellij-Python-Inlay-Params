@@ -427,6 +427,7 @@ enum class HintResolver {
             if (
                 typeAnnotation == null
                 || (element is PyFunction && typeAnnotation is PyNoneType)
+                || ((element is PyFunction || element is PyTargetExpression) && (element as PyTypeCommentOwner).typeCommentAnnotation != null)
                 || (element is PyAnnotationOwner && element.annotation != null)
             ) {
                 return false
