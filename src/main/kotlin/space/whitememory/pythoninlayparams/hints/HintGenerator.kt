@@ -11,9 +11,16 @@ enum class HintGenerator {
                 return null
             }
 
-            return type.members
+            val generatedValues = type.members
                 .filterNotNull()
-                .joinToString(separator = " | ", limit = 3) { generateTypeHintText(it, typeEvalContext) }
+                .map { generateTypeHintText(it, typeEvalContext) }
+                .distinct()
+
+            if (PyNames.NONE in generatedValues) {
+                return generatedValues.joinToString(separator = " | ", limit = 3)
+            }
+
+            return generatedValues.joinToString(separator = " | ", limit = 2)
         }
     },
 
