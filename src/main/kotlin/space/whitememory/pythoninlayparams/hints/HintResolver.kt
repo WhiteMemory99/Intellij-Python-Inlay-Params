@@ -21,6 +21,25 @@ enum class HintResolver {
         ): Boolean = element.name != PyNames.UNDERSCORE
     },
 
+    GLOBALS_HINT() {
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
+
+        override fun shouldShowTypeHint(
+            element: PyTargetExpression,
+            typeAnnotation: PyType?,
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
+        ): Boolean {
+            val assignedValue = element.findAssignedValue()
+
+            if (assignedValue !is PyCallExpression) {
+                return true
+            }
+
+            return assignedValue.callee?.name !in builtinMethods
+        }
+    },
+
     QUALIFIED_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
@@ -384,6 +403,7 @@ enum class HintResolver {
     abstract fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean
 
     companion object {
+        val builtinMethods = setOf("globals", "locals")
         fun resolve(element: PyTargetExpression, typeEvalContext: TypeEvalContext, settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean {
             val typeAnnotation = getExpressionAnnotationType(element, typeEvalContext)
 
