@@ -9,7 +9,11 @@ sealed class HintUtil {
             parameter !is PyNamedParameter -> parameter?.name
             parameter.isKeywordContainer -> "**${parameter.name}"
             parameter.isPositionalContainer -> "*${parameter.name}"
-            else -> "${parameter.name}: ${parameter.annotationValue}"
+            else -> {
+                parameter.annotationValue?.let {
+                    "${parameter.name}: ${parameter.annotationValue}"
+                } ?: parameter.name
+            }
         }
     }
 }
