@@ -325,7 +325,7 @@ enum class HintResolver {
                         return false
                     }
 
-                    return true
+                    return !assignedValue.isEmpty
                 }
 
                 return try {
