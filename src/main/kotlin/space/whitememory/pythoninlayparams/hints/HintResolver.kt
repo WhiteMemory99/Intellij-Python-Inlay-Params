@@ -30,7 +30,7 @@ enum class HintResolver {
             typeEvalContext: TypeEvalContext,
             settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
-            val assignedValue = element.findAssignedValue()
+            val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
             if (assignedValue !is PyCallExpression) {
                 return true
@@ -77,7 +77,7 @@ enum class HintResolver {
                 return false
             }
 
-            val assignedValue = element.findAssignedValue()
+            val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
             if (assignedValue is PySubscriptionExpression) {
                 assignedValue.rootOperand.reference?.resolve()?.let {
@@ -108,7 +108,7 @@ enum class HintResolver {
             typeEvalContext: TypeEvalContext,
             settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
-            val assignedValue = element.findAssignedValue()
+            val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
             assignedValue?.let {
                 typeEvalContext.getType(element.findAssignedValue() as PyTypedElement)?.let {
