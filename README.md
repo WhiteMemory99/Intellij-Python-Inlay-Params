@@ -1,7 +1,9 @@
 # Python Inlay Params
 
 ![Build](https://github.com/WhiteMemory99/intellij-python-inlay-params/workflows/Build/badge.svg)
-![Downloads](https://img.shields.io/jetbrains/plugin/d/19538-python-inlay-params)
+![Version](https://img.shields.io/jetbrains/plugin/v/19538)
+![Rating](https://img.shields.io/jetbrains/plugin/r/rating/19538)
+![Downloads](https://img.shields.io/jetbrains/plugin/d/19538)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Quick Installation
@@ -20,7 +22,8 @@
 ## Description
 
 <!-- Plugin description -->
-This plugin _(quite decently)_ implements inlay parameter hints for **Python**.
+This plugin _(quite decently)_ implements inlay parameter hints for **Python**.  
+In addition, you can enable type annotation hints for variables and function return types.
 
 ### Supported expressions
 
@@ -38,12 +41,30 @@ Pretty much any expression is supported:
 
 ## Settings
 
-The plugin can be disabled entirely in the IDE settings:
+### Parameter hints
+
+To disable them entirely, follow this path:
 
 <kbd>Settings</kbd> -> <kbd>Editor</kbd> -> <kbd>Inlay Hints</kbd> -> <kbd>Parameter names</kbd> -> <kbd>Python</kbd>
 
-There are also more detailed settings in the same section that let you control the behavior of the plugin.
+But you can also switch specific parts in that menu: `Class hints`, `Function hints`, and `Lambda hints` to
+enable/disable them individually.
 
-## Demo Screenshot
+### Type annotation hints (BETA)
 
-![](.github/readme/plugin_demo.png)
+To disable them entirely, follow this path:
+
+<kbd>Settings</kbd> -> <kbd>Editor</kbd> -> <kbd>Inlay Hints</kbd> -> <kbd>Types</kbd> -> <kbd>Python</kbd>
+
+There are two main options under this partition: `Type annotations` and `Function return types`.  
+Look at the demo screenshot to see them in work.
+
+## Demo Screenshots
+
+#### Parameters
+
+![](.github/readme/params_demo.png)
+
+#### Type annotations
+
+![](.github/readme/types_demo.png)
