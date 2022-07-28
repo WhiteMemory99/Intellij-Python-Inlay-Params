@@ -450,9 +450,11 @@ enum class HintResolver {
 
             if (
                 typeAnnotation == null
+                || (element is PyFunction && element.isAsync) // TODO: Handle async functions properly
                 || (element is PyFunction && typeAnnotation is PyNoneType)
                 || ((element is PyFunction || element is PyTargetExpression) && (element as PyTypeCommentOwner).typeCommentAnnotation != null)
                 || (element is PyAnnotationOwner && element.annotation != null)
+                || (element is PyFunction && !element.textContains(":".single()))
             ) {
                 return false
             }
