@@ -10,8 +10,8 @@ import javax.swing.JComponent
 class PythonFunctionInlayTypeHintsProvider : InlayHintsProvider<NoSettings> {
 
     override val key: SettingsKey<NoSettings> = SettingsKey("python.inlay.function.types")
-    override val name = "Function type hints"
-    override val description = "Show the return type of functions in the editor"
+    override val name = "Function return types"
+    override val description = "Show the return type of functions"
     override val previewText = null
 
     override val group = InlayGroup.TYPES_GROUP

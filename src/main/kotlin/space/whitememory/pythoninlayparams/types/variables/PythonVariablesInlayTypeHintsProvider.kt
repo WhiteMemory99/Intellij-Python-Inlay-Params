@@ -19,8 +19,8 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
     )
 
     override val key: SettingsKey<Settings> = settingsKey
-    override val name = "Variables type hints"
-    override val description = "Show the type of variables in the editor"
+    override val name = "Type annotations"
+    override val description = "Show the type annotations for variables"
     override val previewText = null
 
     override val group: InlayGroup = InlayGroup.TYPES_GROUP
@@ -46,7 +46,7 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
 
     override fun getCaseDescription(case: ImmediateConfigurable.Case): String? = when (case.id) {
         "hints.class.attributes" -> "Show type hints for class attributes."
-        "hints.general" -> """Enable\Disable plugin. Show type hints for all variables."""
+        "hints.general" -> """Enable\Disable type hints for variables."""
         else -> null
     }
 
