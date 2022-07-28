@@ -32,12 +32,12 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
 
         override val cases: List<ImmediateConfigurable.Case> = listOf(
             ImmediateConfigurable.Case(
-                "Class attribute hints",
+                "Class attributes",
                 "hints.class.attributes",
                 settings::showClassAttributeHints
             ),
             ImmediateConfigurable.Case(
-                "General type hints",
+                "General hints",
                 "hints.general",
                 settings::showGeneralHints
             )
