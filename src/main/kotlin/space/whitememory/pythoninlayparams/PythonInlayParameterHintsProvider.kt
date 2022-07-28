@@ -1,46 +1,70 @@
 package space.whitememory.pythoninlayparams
 
-import com.intellij.codeInsight.hints.FactoryInlayHintsCollector
-import com.intellij.codeInsight.hints.InlayHintsSink
 import com.intellij.codeInsight.hints.InlayInfo
-import com.intellij.openapi.editor.Editor
+import com.intellij.codeInsight.hints.InlayParameterHintsProvider
+import com.intellij.codeInsight.hints.Option
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.jetbrains.python.psi.*
 import com.jetbrains.python.psi.types.TypeEvalContext
 
+
 @Suppress("UnstableApiUsage")
-class PythonInlayHintsCollector(
-    editor: Editor, private val settings: PythonInlayHintsProvider.Settings
-) : FactoryInlayHintsCollector(editor) {
+class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
+
+    companion object {
+        val classHints = Option("hints.classes.parameters", { "Class hints" }, true)
+        val functionHints = Option("hints.functions.parameters", { "Function hints" }, true)
+        val lambdaHints = Option("hints.lambdas.parameters", { "Lambda hints" }, true)
+    }
 
     private val forbiddenBuiltinFiles = setOf("builtins.pyi", "typing.pyi")
 
-    override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {
+    override fun getDefaultBlackList() = setOf<String>()
+
+    override fun isBlackListSupported() = false
+
+    override fun getDescription() = "Help you pass correct arguments by showing parameter names at call sites"
+
+    override fun getSupportedOptions() = listOf(classHints, functionHints, lambdaHints)
+
+    override fun getProperty(key: String?): String? {
+        val prefix = "inlay.parameters"
+        return when (key) {
+            "$prefix.hints.classes.parameters" -> "Show parameter names for class constructors and dataclasses."
+            "$prefix.hints.functions.parameters" -> "Show parameter names for function and method calls."
+            "$prefix.hints.lambdas.parameters" -> "Show parameter names for lambda calls."
+            else -> null
+        }
+    }
+
+    override fun getParameterHints(element: PsiElement): MutableList<InlayInfo> {
+        val inlayInfos = mutableListOf<InlayInfo>()
+
         // This method gets every element in the editor,
         // so we have to verify it's a Python call expression
         if (element !is PyCallExpression || element is PyDecorator) {
-            return true
+            return inlayInfos
         }
 
         // Don't show hints if there's no arguments
         // Or the only argument is unpacking (*list, **dict)
         if (element.arguments.isEmpty() || (element.arguments.size == 1 && element.arguments[0] is PyStarArgument)) {
-            return true
+            return inlayInfos
         }
 
         // Try to resolve the object that made this call
-        var resolved = element.callee?.reference?.resolve() ?: return true
+        var resolved = element.callee?.reference?.resolve() ?: return inlayInfos
         if (isForbiddenBuiltinElement(resolved)) {
-            return true
+            return inlayInfos
         }
 
         var classAttributes = listOf<PyTargetExpression>()
-        if (resolved is PyTargetExpression && settings.lambdaHints) {
+        if (resolved is PyTargetExpression && lambdaHints.isEnabled()) {
             // TODO: Handle cases other than lambda expressions
             // Use the target to find the lambda expression object, and assign it to get its parameters up ahead
-            resolved = PsiTreeUtil.getNextSiblingOfType(resolved, PyLambdaExpression::class.java) ?: return true
-        } else if (resolved is PyClass && settings.classHints) {
+            resolved = PsiTreeUtil.getNextSiblingOfType(resolved, PyLambdaExpression::class.java) ?: return inlayInfos
+        } else if (resolved is PyClass && classHints.isEnabled()) {
             // This call is made by a class (initialization), so we want to find the parameters it takes.
             // In order to do so, we first have to check for an init method, and if not found,
             // We will use the class attributes instead. (Handle dataclasses, attrs, etc.)
@@ -55,8 +79,8 @@ class PythonInlayHintsCollector(
                 classAttributes = resolved.classAttributes
                 entryMethod ?: resolved
             }
-        } else if (!settings.functionHints) {
-            return true
+        } else if (!functionHints.isEnabled()) {
+            return inlayInfos
         }
 
         val resolvedParameters = getElementFilteredParameters(resolved)
@@ -66,7 +90,7 @@ class PythonInlayHintsCollector(
             // in case this is a class
             classAttributes
         } else if (resolvedParameters.isEmpty()) {
-            return true
+            return inlayInfos
         } else {
             resolvedParameters
         }
@@ -75,27 +99,11 @@ class PythonInlayHintsCollector(
             // Don't need a hint if there's only one parameter,
             // Make an exception for *args
             finalParameters[0].let {
-                if (it !is PyNamedParameter || !it.isPositionalContainer) return true
+                if (it !is PyNamedParameter || !it.isPositionalContainer) return inlayInfos
             }
         }
 
-        getInlayInfos(finalParameters, element.arguments).forEach {
-            val hintText = factory.smallText("${it.text}:")
-            val presentation = factory.roundWithBackground(hintText)
-
-            sink.addInlineElement(it.offset, false, presentation, false)
-        }
-
-        return true
-    }
-
-    /**
-     * Gets the list of [InlayInfo] that represents parameters worth showing along with their offset.
-     */
-    private fun getInlayInfos(parameters: List<PyElement>, arguments: Array<PyExpression>): MutableList<InlayInfo> {
-        val inlayInfos = mutableListOf<InlayInfo>()
-
-        parameters.zip(arguments).forEach { (param, arg) ->
+        finalParameters.zip(element.arguments).forEach { (param, arg) ->
             val paramName = param.name ?: return@forEach
             if (arg is PyStarArgument || arg is PyKeywordArgument) {
                 // It's a keyword argument or unpacking,

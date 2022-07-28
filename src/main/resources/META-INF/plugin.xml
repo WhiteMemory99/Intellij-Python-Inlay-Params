@@ -9,7 +9,7 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <codeInsight.inlayProvider language="Python"
-                                        implementationClass="space.whitememory.pythoninlayparams.PythonInlayHintsProvider"/>
+        <codeInsight.parameterNameHints language="Python"
+                                        implementationClass="space.whitememory.pythoninlayparams.PythonInlayParameterHintsProvider"/>
     </extensions>
 </idea-plugin>
