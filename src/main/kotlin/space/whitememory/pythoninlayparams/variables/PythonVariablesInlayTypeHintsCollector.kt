@@ -39,15 +39,11 @@ class PythonVariablesInlayTypeHintsCollector(editor: Editor, override val settin
             return true
         }
 
-        val typeAnnotation = HintResolver.getExpressionAnnotationType(element, typeEvalContext)
-        val hintName = HintGenerator.generateTypeHintText(typeAnnotation, typeEvalContext)
-
-        sink.addInlineElement(
-            element.endOffset,
-            false,
-            factory.roundWithBackground(factory.smallText("$textBeforeTypeHint $hintName")),
-            false
-        )
+        try {
+            renderTypeHint(element, typeEvalContext, sink)
+        } catch (e: Exception) {
+            return true
+        }
 
         return true
     }
