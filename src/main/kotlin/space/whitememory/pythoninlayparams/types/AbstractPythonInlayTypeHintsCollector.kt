@@ -1,4 +1,4 @@
-package space.whitememory.pythoninlayparams
+package space.whitememory.pythoninlayparams.types
 
 import com.intellij.codeInsight.hints.FactoryInlayHintsCollector
 import com.intellij.codeInsight.hints.InlayHintsSink
@@ -6,8 +6,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.jetbrains.python.psi.PyElement
 import com.jetbrains.python.psi.types.TypeEvalContext
-import space.whitememory.pythoninlayparams.hints.HintGenerator
-import space.whitememory.pythoninlayparams.hints.HintResolver
+import space.whitememory.pythoninlayparams.types.hints.HintGenerator
+import space.whitememory.pythoninlayparams.types.hints.HintResolver
 
 @Suppress("UnstableApiUsage")
 abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val settings: Any): FactoryInlayHintsCollector(editor) {

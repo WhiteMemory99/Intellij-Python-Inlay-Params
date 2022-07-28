@@ -1,4 +1,4 @@
-package space.whitememory.pythoninlayparams.variables
+package space.whitememory.pythoninlayparams.types.variables
 
 import com.intellij.codeInsight.hints.*
 import com.intellij.openapi.editor.Editor
@@ -13,25 +13,26 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
         private val settingsKey: SettingsKey<Settings> = SettingsKey("python.inlay.types")
     }
 
-    override fun createSettings(): Settings = Settings()
-
     data class Settings(
         var showClassAttributeHints: Boolean = false,
-        var showGeneralHints: Boolean = true,
+        var showGeneralHints: Boolean = false,
     )
 
+    override val key: SettingsKey<Settings> = settingsKey
     override val name = "Variables type hints"
     override val description = "Show the type of variables in the editor"
     override val previewText = null
-    override val key: SettingsKey<Settings> = settingsKey
+
     override val group: InlayGroup = InlayGroup.TYPES_GROUP
+
+    override fun createSettings(): Settings = Settings()
 
     override fun createConfigurable(settings: Settings): ImmediateConfigurable = object : ImmediateConfigurable {
         override fun createComponent(listener: ChangeListener): JComponent = panel { }
 
         override val cases: List<ImmediateConfigurable.Case> = listOf(
             ImmediateConfigurable.Case(
-                "Disable class attribute hints",
+                "Class attribute hints",
                 "hints.class.attributes",
                 settings::showClassAttributeHints
             ),
@@ -44,8 +45,8 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
     }
 
     override fun getCaseDescription(case: ImmediateConfigurable.Case): String? = when (case.id) {
-        "hints.class.attributes" -> "Show type hints for class attributes"
-        "hints.general" -> """Enable\Disable plugin. Show type hints for all variables"""
+        "hints.class.attributes" -> "Show type hints for class attributes."
+        "hints.general" -> """Enable\Disable plugin. Show type hints for all variables."""
         else -> null
     }
 

@@ -29,11 +29,11 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
     override fun getSupportedOptions() = listOf(classHints, functionHints, lambdaHints)
 
     override fun getProperty(key: String?): String? {
-        val prefix = "inlay.parameters"
+        val prefix = "inlay.parameters.hints"
         return when (key) {
-            "$prefix.hints.classes.parameters" -> "Show parameter names for class constructors and dataclasses."
-            "$prefix.hints.functions.parameters" -> "Show parameter names for function and method calls."
-            "$prefix.hints.lambdas.parameters" -> "Show parameter names for lambda calls."
+            "$prefix.classes.parameters" -> "Show parameter names for class constructors and dataclasses."
+            "$prefix.functions.parameters" -> "Show parameter names for function and method calls."
+            "$prefix.lambdas.parameters" -> "Show parameter names for lambda calls."
             else -> null
         }
     }

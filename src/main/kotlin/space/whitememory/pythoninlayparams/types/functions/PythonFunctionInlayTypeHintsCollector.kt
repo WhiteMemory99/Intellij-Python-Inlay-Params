@@ -1,31 +1,28 @@
-package space.whitememory.pythoninlayparams.variables
+package space.whitememory.pythoninlayparams.types.functions
 
 import com.intellij.codeInsight.hints.InlayHintsSink
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.suggested.endOffset
 import com.jetbrains.python.psi.PyElement
-import com.jetbrains.python.psi.PyTargetExpression
-import space.whitememory.pythoninlayparams.AbstractPythonInlayTypeHintsCollector
-import space.whitememory.pythoninlayparams.hints.HintGenerator
-import space.whitememory.pythoninlayparams.hints.HintResolver
+import com.jetbrains.python.psi.PyFunction
+import com.jetbrains.python.psi.PyParameterList
+import space.whitememory.pythoninlayparams.types.AbstractPythonInlayTypeHintsCollector
+import space.whitememory.pythoninlayparams.types.hints.HintResolver
 
 @Suppress("UnstableApiUsage")
-class PythonVariablesInlayTypeHintsCollector(editor: Editor, override val settings: PythonVariablesInlayTypeHintsProvider.Settings) :
+class PythonFunctionInlayTypeHintsCollector(editor: Editor, settings: Any) :
     AbstractPythonInlayTypeHintsCollector(editor, settings) {
 
-    override fun validateExpression(element: PsiElement): Boolean {
-        return element is PyTargetExpression
-    }
+    override val textBeforeTypeHint = "->"
 
-    override val textBeforeTypeHint = ":"
+    override fun validateExpression(element: PsiElement): Boolean {
+        return element is PyFunction
+    }
 
     override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {
         if (!super.collect(element, editor, sink)) {
-            return false
-        }
-
-        if (!settings.showGeneralHints) {
             return false
         }
 
@@ -35,7 +32,7 @@ class PythonVariablesInlayTypeHintsCollector(editor: Editor, override val settin
 
         val typeEvalContext = getTypeEvalContext(editor, element)
 
-        if (HintResolver.resolve(element as PyTargetExpression, typeEvalContext, settings)) {
+        if (!HintResolver.shouldShowTypeHint(element as PyFunction, typeEvalContext)) {
             return true
         }
 
@@ -49,11 +46,15 @@ class PythonVariablesInlayTypeHintsCollector(editor: Editor, override val settin
     }
 
     override fun displayTypeHint(element: PyElement, sink: InlayHintsSink, hintName: String) {
-        sink.addInlineElement(
-            element.endOffset,
-            false,
-            factory.roundWithBackground(factory.smallText("$textBeforeTypeHint $hintName")),
-            false
-        )
+        val statementList = PsiTreeUtil.getChildOfType(element, PyParameterList::class.java)
+
+        statementList?.let {
+            sink.addInlineElement(
+                it.endOffset,
+                false,
+                factory.roundWithBackground(factory.smallText("$textBeforeTypeHint $hintName")),
+                false
+            )
+        }
     }
 }

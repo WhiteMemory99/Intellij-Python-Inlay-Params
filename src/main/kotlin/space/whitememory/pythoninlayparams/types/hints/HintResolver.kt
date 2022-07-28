@@ -1,4 +1,4 @@
-package space.whitememory.pythoninlayparams.hints
+package space.whitememory.pythoninlayparams.types.hints
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.jetbrains.python.PyNames
@@ -6,7 +6,7 @@ import com.jetbrains.python.codeInsight.typing.PyTypingTypeProvider
 import com.jetbrains.python.psi.*
 import com.jetbrains.python.psi.impl.PyCallExpressionHelper
 import com.jetbrains.python.psi.types.*
-import space.whitememory.pythoninlayparams.variables.PythonVariablesInlayTypeHintsProvider
+import space.whitememory.pythoninlayparams.types.variables.PythonVariablesInlayTypeHintsProvider
 
 enum class HintResolver {
 
@@ -21,7 +21,7 @@ enum class HintResolver {
         ): Boolean = element.name != PyNames.UNDERSCORE
     },
 
-    GLOBALS_HINT() {
+    GLOBALS_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
         override fun shouldShowTypeHint(
@@ -132,7 +132,7 @@ enum class HintResolver {
     },
 
     CLASS_ATTRIBUTE_HINT {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = settings.showClassAttributeHints
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = !settings.showClassAttributeHints
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
