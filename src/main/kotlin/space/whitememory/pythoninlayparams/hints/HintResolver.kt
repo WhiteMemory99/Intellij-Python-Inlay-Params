@@ -325,6 +325,10 @@ enum class HintResolver {
                         return false
                     }
 
+                    if (typeAnnotation.name == "dict") {
+                        return false
+                    }
+
                     return !assignedValue.isEmpty
                 }
 
