@@ -17,9 +17,7 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
 
     data class Settings(
         var showClassAttributeHints: Boolean = false,
-//        var showListComprehensionHints: Boolean = false,
         var showGeneralHints: Boolean = true,
-        var showShortCallable: Boolean = true
     )
 
     override val name = "Variables type hints"
@@ -33,19 +31,9 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
 
         override val cases: List<ImmediateConfigurable.Case> = listOf(
             ImmediateConfigurable.Case(
-                "Class attribute hints",
+                "Disable class attribute hints",
                 "hints.class.attributes",
                 settings::showClassAttributeHints
-            ),
-//            ImmediateConfigurable.Case(
-//                "List comprehension hints",
-//                "hints.comprehension",
-//                settings::showListComprehensionHints
-//            ),
-            ImmediateConfigurable.Case(
-                "Short callable hints",
-                "hints.callable.hints",
-                settings::showShortCallable
             ),
             ImmediateConfigurable.Case(
                 "General type hints",
@@ -57,7 +45,6 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
 
     override fun getCaseDescription(case: ImmediateConfigurable.Case): String? = when (case.id) {
         "hints.class.attributes" -> "Show type hints for class attributes"
-//        "hints.comprehension" -> "Show type hints for elements inside list comprehension"
         "hints.general" -> """Enable\Disable plugin. Show type hints for all variables"""
         else -> null
     }
