@@ -3,8 +3,10 @@ package space.whitememory.pythoninlayparams.types.functions
 import com.intellij.codeInsight.hints.InlayHintsSink
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.suggested.endOffset
+import com.jetbrains.python.PyTokenTypes
 import com.jetbrains.python.psi.PyElement
 import com.jetbrains.python.psi.PyFunction
 import com.jetbrains.python.psi.PyParameterList
@@ -18,7 +20,13 @@ class PythonFunctionInlayTypeHintsCollector(editor: Editor, settings: Any) :
     override val textBeforeTypeHint = "->"
 
     override fun validateExpression(element: PsiElement): Boolean {
-        return element is PyFunction
+        // Not a function or has only def keyword
+        if (element !is PyFunction || element.nameNode == null) {
+            return false
+        }
+
+        val colonToken = TokenSet.create(PyTokenTypes.COLON)
+        return element.node.getChildren(colonToken).isNotEmpty()
     }
 
     override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {

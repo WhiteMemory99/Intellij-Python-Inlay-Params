@@ -132,7 +132,8 @@ enum class HintResolver {
     },
 
     CLASS_ATTRIBUTE_HINT {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean = !settings.showClassAttributeHints
+        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean =
+            !settings.showClassAttributeHints
 
         override fun shouldShowTypeHint(
             element: PyTargetExpression,
@@ -321,7 +322,9 @@ enum class HintResolver {
             if (isLiteralExpression(assignedValue)) {
                 if ((typeAnnotation is PyTypedDictType || (typeAnnotation is PyClassType && typeAnnotation.pyClass.qualifiedName == PyNames.DICT)) && assignedValue is PySequenceExpression) {
                     // Handle case when dict contains all literal expressions
-                    if (assignedValue.elements.isNotEmpty() && assignedValue.elements.all { it is PyKeyValueExpression && isLiteralExpression(it.value) }) {
+                    if (assignedValue.elements.isNotEmpty() && assignedValue.elements.all {
+                            it is PyKeyValueExpression && isLiteralExpression(it.value)
+                        }) {
                         return false
                     }
 
@@ -408,7 +411,12 @@ enum class HintResolver {
 
     companion object {
         val builtinMethods = setOf("globals", "locals")
-        fun resolve(element: PyTargetExpression, typeEvalContext: TypeEvalContext, settings: PythonVariablesInlayTypeHintsProvider.Settings): Boolean {
+
+        fun resolve(
+            element: PyTargetExpression,
+            typeEvalContext: TypeEvalContext,
+            settings: PythonVariablesInlayTypeHintsProvider.Settings
+        ): Boolean {
             val typeAnnotation = getExpressionAnnotationType(element, typeEvalContext)
 
             return resolveEnabled(settings).any {
@@ -454,13 +462,14 @@ enum class HintResolver {
                 || (element is PyFunction && typeAnnotation is PyNoneType)
                 || ((element is PyFunction || element is PyTargetExpression) && (element as PyTypeCommentOwner).typeCommentAnnotation != null)
                 || (element is PyAnnotationOwner && element.annotation != null)
-                || (element is PyFunction && !element.textContains(":".single()))
             ) {
                 return false
             }
 
             if (typeAnnotation is PyUnionType) {
-                return !typeAnnotation.members.all { PyTypeChecker.isUnknown(it, false, typeEvalContext) || (it is PyNoneType || it == null) }
+                return !typeAnnotation.members.all {
+                    PyTypeChecker.isUnknown(it, false, typeEvalContext) || (it is PyNoneType || it == null)
+                }
             }
 
             if (PyTypeChecker.isUnknown(typeAnnotation, false, typeEvalContext)) {
