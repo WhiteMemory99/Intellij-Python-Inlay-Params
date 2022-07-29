@@ -59,12 +59,7 @@ To disable them entirely, follow this path:
 There are two main options under this partition: `Type annotations` and `Function return types`.  
 Look at the demo screenshot to see them in work.
 
-## Demo Screenshots
+## Demo Screenshot
 
-#### Parameters
+![](.github/readme/demo_screenshot.png)
 
-![](.github/readme/params_demo.png)
-
-#### Type annotations
-
-![](.github/readme/types_demo.png)
