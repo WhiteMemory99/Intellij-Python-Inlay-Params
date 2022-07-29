@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.2.0] - 2022-07-29
 ### Added
 - Detail plugin settings that let you disable parameter hints selectively
 - Introduce new inlay hints - optional type annotations for variables and functions return types [[#6](https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params/pull/6)]
