@@ -10,7 +10,8 @@ import space.whitememory.pythoninlayparams.types.hints.HintGenerator
 import space.whitememory.pythoninlayparams.types.hints.HintResolver
 
 @Suppress("UnstableApiUsage")
-abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val settings: Any): FactoryInlayHintsCollector(editor) {
+abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val settings: Any) :
+    FactoryInlayHintsCollector(editor) {
     abstract fun validateExpression(element: PsiElement): Boolean
 
     abstract val textBeforeTypeHint: String

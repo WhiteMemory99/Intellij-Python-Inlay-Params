@@ -10,7 +10,10 @@ import space.whitememory.pythoninlayparams.types.AbstractPythonInlayTypeHintsCol
 import space.whitememory.pythoninlayparams.types.hints.HintResolver
 
 @Suppress("UnstableApiUsage")
-class PythonVariablesInlayTypeHintsCollector(editor: Editor, override val settings: PythonVariablesInlayTypeHintsProvider.Settings) :
+class PythonVariablesInlayTypeHintsCollector(
+    editor: Editor,
+    override val settings: PythonVariablesInlayTypeHintsProvider.Settings
+) :
     AbstractPythonInlayTypeHintsCollector(editor, settings) {
 
     override fun validateExpression(element: PsiElement): Boolean {

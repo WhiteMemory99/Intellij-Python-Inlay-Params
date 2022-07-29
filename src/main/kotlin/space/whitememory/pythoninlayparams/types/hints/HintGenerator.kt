@@ -5,7 +5,7 @@ import com.jetbrains.python.psi.PyLambdaExpression
 import com.jetbrains.python.psi.types.*
 
 enum class HintGenerator {
-    UNION_TYPE() {
+    UNION_TYPE {
         override fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String? {
             if (type !is PyUnionType) {
                 return null
@@ -24,7 +24,7 @@ enum class HintGenerator {
         }
     },
 
-    COLLECTION_TYPE() {
+    COLLECTION_TYPE {
         override fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String? {
             if (
                 type is PyCollectionType
@@ -54,7 +54,7 @@ enum class HintGenerator {
         }
     },
 
-    TUPLE_TYPE() {
+    TUPLE_TYPE {
         override fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String? {
             if (type !is PyTupleType) {
                 return null
@@ -67,17 +67,17 @@ enum class HintGenerator {
             if (type.elementCount > 2) {
                 val firstElement = generateTypeHintText(type.elementTypes[0], typeEvalContext)
                 val secondElement = generateTypeHintText(type.elementTypes[1], typeEvalContext)
-                
+
                 return "${PyNames.TUPLE}[$firstElement, $secondElement, ...]"
             }
-            
+
             return type.elementTypes
                 .mapNotNull { generateTypeHintText(it, typeEvalContext) }
                 .joinToString(separator = ", ", prefix = "${PyNames.TUPLE}[", postfix = "]")
         }
     },
 
-    CLASS_TYPE() {
+    CLASS_TYPE {
         override fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String? {
             if (type is PyClassType && type.isDefinition) {
                 return "${PyNames.TYPE.replaceFirstChar { it.titlecaseChar() }}[${type.declarationElement?.name}]"
@@ -87,7 +87,7 @@ enum class HintGenerator {
         }
     },
 
-    FUNCTION_TYPE() {
+    FUNCTION_TYPE {
         override fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String? {
             if (type !is PyFunctionType) {
                 return null
@@ -95,9 +95,11 @@ enum class HintGenerator {
 
             val parametersText = when (type.callable) {
                 is PyLambdaExpression -> type.callable.parameterList.getPresentableText(false, typeEvalContext)
-                else -> "(${type.callable.parameterList.parameters
-                    .filter { !it.isSelf }
-                    .joinToString(separator = ", ") { "${HintUtil.getParameterAnnotationValue(it)}" }})"
+                else -> "(${
+                    type.callable.parameterList.parameters
+                        .filter { !it.isSelf }
+                        .joinToString(separator = ", ") { "${HintUtil.getParameterAnnotationValue(it)}" }
+                })"
             }
 
             val callableReturnType = typeEvalContext.getReturnType(type.callable)
@@ -106,7 +108,7 @@ enum class HintGenerator {
         }
     },
 
-    ANY_TYPE() {
+    ANY_TYPE {
         override fun handleType(type: PyType?, typeEvalContext: TypeEvalContext): String {
             return type?.name ?: PyNames.UNKNOWN_TYPE
         }
