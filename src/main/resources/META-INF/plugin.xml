@@ -6,7 +6,6 @@
 
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.python</depends>
-    <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <codeInsight.inlayProvider language="Python" implementationClass="space.whitememory.pythoninlayparams.types.variables.PythonVariablesInlayTypeHintsProvider"/>
