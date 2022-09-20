@@ -147,7 +147,9 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
     private fun getElementFilteredParameters(element: PsiElement): List<PyParameter> {
         element.children.forEach {
             if (it is PyParameterList) {
-                return it.parameters.filter { param -> !param.isSelf }
+                return it.parameters.filter { param ->
+                    !param.isSelf && param !is PySingleStarParameter && param !is PySlashParameter
+                }
             }
         }
         return emptyList()
