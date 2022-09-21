@@ -61,17 +61,34 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
             return inlayInfos
         }
 
+        var useCallMethod = false
+        if (resolved is PyTargetExpression) {
+            // The target expression might include a lambda or class attribute
+            val assignedValue = resolved.findAssignedValue() ?: return inlayInfos
+            resolved = if (assignedValue is PyLambdaExpression && lambdaHints.isEnabled()) {
+                assignedValue
+            } else if (assignedValue is PyCallExpression) {
+                // Potentially a class instance, very specific and requires more research
+                useCallMethod = true
+                assignedValue.callee?.reference?.resolve() ?: return inlayInfos
+            } else {
+                return inlayInfos
+            }
+        }
+
         var classAttributes = listOf<PyTargetExpression>()
-        if (resolved is PyTargetExpression && lambdaHints.isEnabled()) {
-            // TODO: Handle cases other than lambda expressions
-            // Use the target to find the lambda expression object, and assign it to get its parameters up ahead
-            resolved = PsiTreeUtil.getNextSiblingOfType(resolved, PyLambdaExpression::class.java) ?: return inlayInfos
-        } else if (resolved is PyClass && classHints.isEnabled()) {
-            // This call is made by a class (initialization), so we want to find the parameters it takes.
+        if (resolved is PyClass && classHints.isEnabled()) {
+            // This call is made by a class (instantiation/__call__), so we want to find the parameters it takes.
             // In order to do so, we first have to check for an init method, and if not found,
             // We will use the class attributes instead. (Handle dataclasses, attrs, etc.)
             val evalContext = TypeEvalContext.codeAnalysis(element.project, element.containingFile)
-            val entryMethod = resolved.findInitOrNew(true, evalContext)
+            val entryMethod = if (useCallMethod) {
+                // TODO: Find some API sugar to make it more reliable?
+                resolved.findMethodByName("__call__", false, evalContext)
+                    ?: resolved.findInitOrNew(true, evalContext)
+            } else {
+                resolved.findInitOrNew(true, evalContext)
+            }
 
             resolved = if (entryMethod != null && entryMethod.containingClass == resolved) {
                 entryMethod

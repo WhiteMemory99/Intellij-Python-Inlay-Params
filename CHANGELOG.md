@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- More Python syntax covered with parameter hints
+
 ### Changed
 - Reduced the amount of parameter hints to make them more relevant and valuable, a new settings option included
 
