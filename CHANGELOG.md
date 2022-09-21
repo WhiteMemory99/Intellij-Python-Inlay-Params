@@ -1,6 +1,11 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Reduced the amount of parameter hints to make them more relevant and valuable, a new settings option included
+
+### Fixed
+- Star (*) and Slash (/) parameters were breaking the hints order
 
 ## [0.2.0] - 2022-07-29
 ### Added
