@@ -16,6 +16,7 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
         val classHints = Option("hints.classes.parameters", { "Class hints" }, true)
         val functionHints = Option("hints.functions.parameters", { "Function hints" }, true)
         val lambdaHints = Option("hints.lambdas.parameters", { "Lambda hints" }, true)
+        val hideOverlaps = Option("hints.overlaps.parameters", { "Hide overlaps" }, true)
     }
 
     private val forbiddenBuiltinFiles = setOf("builtins.pyi", "typing.pyi")
@@ -26,7 +27,7 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
 
     override fun getDescription() = "Help you pass correct arguments by showing parameter names at call sites"
 
-    override fun getSupportedOptions() = listOf(classHints, functionHints, lambdaHints)
+    override fun getSupportedOptions() = listOf(classHints, functionHints, lambdaHints, hideOverlaps)
 
     override fun getProperty(key: String?): String? {
         val prefix = "inlay.parameters.hints"
@@ -34,6 +35,7 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
             "$prefix.classes.parameters" -> "Show parameter names for class constructors and dataclasses."
             "$prefix.functions.parameters" -> "Show parameter names for function and method calls."
             "$prefix.lambdas.parameters" -> "Show parameter names for lambda calls."
+            "$prefix.overlaps.parameters" -> "Hide hints when a parameter name is completely overlapped by a longer argument name."
             else -> null
         }
     }
@@ -123,7 +125,7 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
                 }
             }
 
-            if (isHintNameValid(paramName, arg)) {
+            if (isHintNameValid(paramName.lowercase(), arg)) {
                 inlayInfos.add(InlayInfo(paramName, arg.textOffset))
             }
         }
@@ -133,11 +135,22 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
 
     /**
      * Checks if the given parameter name is valid for the given argument.
-     * This is used to skip parameters that start with __, or are the same as the argument.
+     * From the point of the argument similarity compared to the parameter name,
+     * If the argument is very similar, we don't need to show it.
      */
-    private fun isHintNameValid(name: String, argument: PyExpression): Boolean {
-        // TODO: More filters
-        return name != argument.name?.lowercase() && !name.startsWith("__") && name.length > 1
+    private fun isHintNameValid(paramName: String, argument: PyExpression): Boolean {
+        if (paramName.startsWith("__") && paramName.length == 1) return false
+
+        val argumentName = if (argument is PySubscriptionExpression) {
+            // It's a __getitem__ call (subscription), let's take the argument name from it
+            val key = PsiTreeUtil.getChildOfType(argument, PyStringLiteralExpression::class.java)
+            key?.stringValue?.lowercase() ?: argument.name?.lowercase() ?: return true
+        } else {
+            argument.name?.lowercase() ?: return true
+        }
+
+        if (hideOverlaps.isEnabled() && paramName in argumentName) return false
+        return paramName != argumentName
     }
 
     /**
