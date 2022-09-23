@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.2.1] - 2022-09-23
 ### Added
 - Support for 2022.3
 - More Python syntax covered with parameter hints
