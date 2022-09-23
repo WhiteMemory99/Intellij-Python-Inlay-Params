@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Support for 2022.3
 - More Python syntax covered with parameter hints
 
 ### Changed
