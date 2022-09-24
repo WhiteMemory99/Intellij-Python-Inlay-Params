@@ -60,6 +60,12 @@ enum class HintResolver {
             typeEvalContext: TypeEvalContext,
             settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
+            val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
+
+            if (assignedValue is PyPrefixExpression) {
+                return shouldShowTypeHint(assignedValue.operand as PyElement, typeEvalContext)
+            }
+
             return shouldShowTypeHint(element, typeEvalContext)
         }
     },
