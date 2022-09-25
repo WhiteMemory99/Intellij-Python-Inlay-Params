@@ -156,7 +156,7 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
      * If the argument is very similar, we don't need to show it.
      */
     private fun isHintNameValid(paramName: String, argument: PyExpression): Boolean {
-        if (paramName.startsWith("__") && paramName.length == 1) return false
+        if (paramName.startsWith("__") || paramName.length == 1) return false
 
         val argumentName = if (argument is PySubscriptionExpression) {
             // It's a __getitem__ call (subscription), let's take the argument name from it
