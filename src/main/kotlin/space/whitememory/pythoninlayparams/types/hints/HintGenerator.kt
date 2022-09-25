@@ -100,7 +100,8 @@ enum class HintGenerator {
                 return listOf(
                     InlayInfoDetails(
                         baseInfoDetails,
-                        elements
+                        elements,
+                        separator = ", "
                     )
                 )
             }
