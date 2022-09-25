@@ -48,7 +48,6 @@ class PythonFunctionInlayTypeHintsCollector(editor: Editor, settings: Any) :
         try {
             renderTypeHint(element, typeEvalContext, sink)
         } catch (e: Exception) {
-            println(e)
             return true
         }
 
