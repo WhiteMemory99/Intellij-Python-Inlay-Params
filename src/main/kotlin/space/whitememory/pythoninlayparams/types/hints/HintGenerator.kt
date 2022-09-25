@@ -236,7 +236,6 @@ enum class HintGenerator {
 
 
 @Suppress("UnstableApiUsage")
-
 data class InlayInfoDetails(
     val rootInlayInfo: InlayInfoDetail?,
     val details: List<InlayInfoDetails> = listOf(),
