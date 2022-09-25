@@ -1,6 +1,13 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Type hints now support `async` functions [[#15](https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params/pull/15)]
+- Made type hints clickable, `Ctrl+LMB` to open the object reference [[#17](https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params/pull/17)]
+
+### Fixed
+- Redundant parameter hints for names that start with "`__`" or 1 character long
+- Display of unnecessary type hints [[#16](https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params/pull/16)]
 
 ## [0.2.1] - 2022-09-23
 ### Added
