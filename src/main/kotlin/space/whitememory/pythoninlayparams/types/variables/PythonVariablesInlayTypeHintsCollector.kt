@@ -1,6 +1,7 @@
 package space.whitememory.pythoninlayparams.types.variables
 
 import com.intellij.codeInsight.hints.InlayHintsSink
+import com.intellij.codeInsight.hints.presentation.InlayPresentation
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.suggested.endOffset
@@ -50,11 +51,11 @@ class PythonVariablesInlayTypeHintsCollector(
         return true
     }
 
-    override fun displayTypeHint(element: PyElement, sink: InlayHintsSink, hintName: String) {
+    override fun displayTypeHint(element: PyElement, sink: InlayHintsSink, hintName: InlayPresentation) {
         sink.addInlineElement(
             element.endOffset,
             false,
-            factory.roundWithBackground(factory.smallText("$textBeforeTypeHint $hintName")),
+            factory.roundWithBackground(factory.seq(factory.smallText("$textBeforeTypeHint "), hintName)),
             false
         )
     }
