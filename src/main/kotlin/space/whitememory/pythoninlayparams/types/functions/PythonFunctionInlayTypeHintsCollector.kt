@@ -1,6 +1,7 @@
 package space.whitememory.pythoninlayparams.types.functions
 
 import com.intellij.codeInsight.hints.InlayHintsSink
+import com.intellij.codeInsight.hints.presentation.InlayPresentation
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
@@ -53,14 +54,14 @@ class PythonFunctionInlayTypeHintsCollector(editor: Editor, settings: Any) :
         return true
     }
 
-    override fun displayTypeHint(element: PyElement, sink: InlayHintsSink, hintName: String) {
+    override fun displayTypeHint(element: PyElement, sink: InlayHintsSink, hintName: InlayPresentation) {
         val statementList = PsiTreeUtil.getChildOfType(element, PyParameterList::class.java)
 
         statementList?.let {
             sink.addInlineElement(
                 it.endOffset,
                 false,
-                factory.roundWithBackground(factory.smallText("$textBeforeTypeHint $hintName")),
+                factory.roundWithBackground(factory.seq(factory.smallText("$textBeforeTypeHint "), hintName)),
                 false
             )
         }

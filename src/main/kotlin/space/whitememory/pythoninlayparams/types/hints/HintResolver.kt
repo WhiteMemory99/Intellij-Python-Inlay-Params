@@ -223,30 +223,24 @@ enum class HintResolver {
             val assignmentValue = PyUtil.peelArgument(element.findAssignedValue())
 
             if (assignmentValue is PyConditionalExpression) {
-                return resolveExpression(assignmentValue.truePart, assignmentValue.falsePart)
+                return resolveExpression(ExpressionOperands.fromPyExpression(assignmentValue)!!)
             }
 
             if (assignmentValue is PyBinaryExpression) {
-                return resolveExpression(
-                    assignmentValue.leftExpression,
-                    assignmentValue.rightExpression
-                )
+                return resolveExpression(ExpressionOperands.fromPyExpression(assignmentValue)!!)
             }
 
             return true
         }
 
-        private fun resolveExpression(
-            firstElement: PyExpression,
-            secondElement: PyExpression?
-        ): Boolean {
-            if (isLiteralExpression(firstElement) && isLiteralExpression(secondElement)) {
+        private fun resolveExpression(expressionOperands: ExpressionOperands): Boolean {
+            if (isLiteralExpression(expressionOperands.leftOperand) && isLiteralExpression(expressionOperands.rightOperand)) {
                 return false
             }
 
-            if (firstElement is PyCallExpression && secondElement is PyCallExpression) {
-                val isFalsePartClass = PyCallExpressionHelper.resolveCalleeClass(firstElement) != null
-                val isTruePartClass = PyCallExpressionHelper.resolveCalleeClass(secondElement) != null
+            if (expressionOperands.leftOperand is PyCallExpression && expressionOperands.rightOperand is PyCallExpression) {
+                val isFalsePartClass = PyCallExpressionHelper.resolveCalleeClass(expressionOperands.leftOperand) != null
+                val isTruePartClass = PyCallExpressionHelper.resolveCalleeClass(expressionOperands.rightOperand) != null
 
                 if (isFalsePartClass && isTruePartClass) {
                     return false
@@ -474,6 +468,14 @@ enum class HintResolver {
             if (typeAnnotation is PyUnionType) {
                 return !typeAnnotation.members.all {
                     PyTypeChecker.isUnknown(it, false, typeEvalContext) || (it is PyNoneType || it == null)
+                }
+            }
+
+            if (element is PyFunction && element.isAsync) {
+                val functionType = PyTypingTypeProvider.coroutineOrGeneratorElementType(typeAnnotation)?.get()
+
+                if (functionType is PyNoneType || PyTypeChecker.isUnknown(functionType, false, typeEvalContext)) {
+                    return false
                 }
             }
 
