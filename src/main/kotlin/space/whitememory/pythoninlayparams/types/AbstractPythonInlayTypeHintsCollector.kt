@@ -41,8 +41,6 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val se
         separator: String = " | ",
         limit: Int? = 3
     ): InlayPresentation {
-        val presentations = mutableListOf<InlayPresentation>()
-
         val convertedInlayInfoDetails = infoDetails.map { getInlayPresentationForInlayInfoDetails(it) }
 
         return factory.seq(*separatePresentation(convertedInlayInfoDetails, separator, limit).toTypedArray())
@@ -97,6 +95,9 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val se
 
         while (iterator.hasNext()) {
             if (limit != null && count == limit) {
+                if (iterator.hasNext()) {
+                    separatedInlayPresentation.add(factory.smallText("..."))
+                }
                 break
             }
 
