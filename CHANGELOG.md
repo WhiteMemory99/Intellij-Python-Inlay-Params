@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.3.0] - 2022-09-25
 ### Added
 - Type hints now support `async` functions [[#15](https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params/pull/15)]
 - Made type hints clickable, `Ctrl+LMB` to open the object reference [[#17](https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params/pull/17)]
