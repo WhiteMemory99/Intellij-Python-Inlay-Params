@@ -471,6 +471,14 @@ enum class HintResolver {
                 }
             }
 
+            if (element is PyFunction && element.isAsync) {
+                val functionType = PyTypingTypeProvider.coroutineOrGeneratorElementType(typeAnnotation)?.get()
+
+                if (functionType is PyNoneType || PyTypeChecker.isUnknown(functionType, false, typeEvalContext)) {
+                    return false
+                }
+            }
+
             if (PyTypeChecker.isUnknown(typeAnnotation, false, typeEvalContext)) {
                 return false
             }
