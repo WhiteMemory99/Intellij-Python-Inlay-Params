@@ -47,8 +47,10 @@ To disable them entirely, follow this path:
 
 <kbd>Settings</kbd> -> <kbd>Editor</kbd> -> <kbd>Inlay Hints</kbd> -> <kbd>Parameter names</kbd> -> <kbd>Python</kbd>
 
-But you can also switch specific parts in that menu: `Class hints`, `Function hints`, and `Lambda hints` to
+But you can also switch specific parts in that menu: `Class hints`, `Function hints` to
 enable/disable them individually.
+Additionally, there's an option to avoid redundant hints more aggressively, called `Hide overlaps`, which is used to
+hide a hint if a parameter name is completely overlapped by its argument.
 
 ### Type annotation hints (BETA)
 
@@ -57,9 +59,8 @@ To disable them entirely, follow this path:
 <kbd>Settings</kbd> -> <kbd>Editor</kbd> -> <kbd>Inlay Hints</kbd> -> <kbd>Types</kbd> -> <kbd>Python</kbd>
 
 There are two main options under this partition: `Type annotations` and `Function return types`.  
-Look at the demo screenshot to see them in work.
+Look at the demo screenshot to see them in work _(last section)_.
 
 ## Demo Screenshot
 
 ![](.github/readme/demo_screenshot.png)
-
