@@ -96,7 +96,7 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val se
         while (iterator.hasNext()) {
             if (limit != null && count == limit) {
                 if (iterator.hasNext()) {
-                    separatedInlayPresentation.add(factory.smallText("| ..."))
+                    separatedInlayPresentation.add(factory.smallText(" | ..."))
                 }
                 break
             }
