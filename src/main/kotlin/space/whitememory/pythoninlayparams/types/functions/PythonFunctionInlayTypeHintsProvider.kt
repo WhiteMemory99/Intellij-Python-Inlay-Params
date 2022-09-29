@@ -23,7 +23,7 @@ class PythonFunctionInlayTypeHintsProvider : InlayHintsProvider<NoSettings> {
         editor: Editor,
         settings: NoSettings,
         sink: InlayHintsSink
-    ): InlayHintsCollector = PythonFunctionInlayTypeHintsCollector(editor, settings)
+    ): InlayHintsCollector = PythonFunctionInlayTypeHintsCollector(editor)
 
     override fun createConfigurable(settings: NoSettings): ImmediateConfigurable {
         return object : ImmediateConfigurable {

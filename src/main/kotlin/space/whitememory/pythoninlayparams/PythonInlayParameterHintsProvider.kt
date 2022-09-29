@@ -59,12 +59,13 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
         if (rootCalleeObject !is PyClass && !functionHints.isEnabled()) return inlayInfos
 
         // Try to resolve the object that made this call, it can be a dataclass/method/function
+        // codeCompletion is used because simpler contexts are not enough to resolve complex cases
         val evalContext = TypeEvalContext.codeCompletion(element.project, element.containingFile)
         val resolvedCallee = element.multiResolveCallee(PyResolveContext.defaultContext(evalContext))
         if (resolvedCallee.isEmpty() || isForbiddenBuiltinCallable(resolvedCallee[0])) return inlayInfos
 
         // Get the parameters of the call, except `self`, `*` and `/`
-        val resolvedParameters = resolvedCallee[0].getParameters(evalContext)?.filter { it ->
+        val resolvedParameters = resolvedCallee[0].getParameters(evalContext)?.filter {
             !it.isSelf && it.parameter !is PySingleStarParameter && it.parameter !is PySlashParameter
         } ?: return inlayInfos
 

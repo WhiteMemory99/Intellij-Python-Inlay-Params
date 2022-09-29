@@ -13,11 +13,12 @@ import space.whitememory.pythoninlayparams.types.hints.InlayInfoDetails
 import space.whitememory.pythoninlayparams.types.hints.PsiInlayInfoDetail
 
 @Suppress("UnstableApiUsage")
-abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val settings: Any) :
+abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor) :
     FactoryInlayHintsCollector(editor) {
-    abstract fun validateExpression(element: PsiElement): Boolean
 
     abstract val textBeforeTypeHint: String
+
+    abstract fun validateExpression(element: PsiElement): Boolean
 
     protected fun getTypeEvalContext(editor: Editor, element: PsiElement): TypeEvalContext {
         return TypeEvalContext.codeCompletion(editor.project!!, element.containingFile)
@@ -25,14 +26,11 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val se
 
     protected fun renderTypeHint(element: PyElement, typeEvalContext: TypeEvalContext, sink: InlayHintsSink) {
         val typeAnnotation = HintResolver.getExpressionAnnotationType(element, typeEvalContext)
-        val hintName = HintGenerator.generateTypeHintText(element, typeAnnotation, typeEvalContext)
-
-        if (hintName.isEmpty()) {
-            return
-        }
+        val hintName =
+            HintGenerator.generateTypeHintText(element, typeAnnotation, typeEvalContext).takeIf { it.isNotEmpty() }
+                ?: return
 
         val resolvedHintName = resolveInlayPresentation(hintName)
-
         displayTypeHint(element, sink, resolvedHintName)
     }
 
@@ -48,12 +46,19 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val se
 
     private fun getInlayPresentationForInlayInfoDetails(infoDetail: InlayInfoDetails): InlayPresentation {
         if (infoDetail.rootInlayInfo == null) {
-            return resolveInlayPresentation(infoDetail.details, separator = infoDetail.separator, limit = infoDetail.limit)
+            return resolveInlayPresentation(
+                infoDetail.details,
+                separator = infoDetail.separator,
+                limit = infoDetail.limit
+            )
         }
 
         val textPresentation = factory.smallText(infoDetail.rootInlayInfo.text)
-        val navigationElementProvider: (() -> PsiElement?)? = when(infoDetail.rootInlayInfo) {
-            is PsiInlayInfoDetail -> {{ infoDetail.rootInlayInfo.element }}
+        val navigationElementProvider = when (infoDetail.rootInlayInfo) {
+            is PsiInlayInfoDetail -> {
+                { infoDetail.rootInlayInfo.element }
+            }
+
             else -> null
         }
 
@@ -61,10 +66,7 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val se
             factory.psiSingleReference(textPresentation, it)
         } ?: textPresentation
 
-        if (infoDetail.details.isEmpty()) {
-            return basePresentation
-        }
-
+        if (infoDetail.details.isEmpty()) return basePresentation
         val childDetails = infoDetail.details.map { getInlayPresentationForInlayInfoDetails(it) }
 
         return factory.seq(
@@ -114,12 +116,4 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor, open val se
     }
 
     abstract fun displayTypeHint(element: PyElement, sink: InlayHintsSink, hintName: InlayPresentation)
-
-    override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {
-        if (!element.isValid || element.project.isDefault) {
-            return false
-        }
-
-        return true
-    }
 }

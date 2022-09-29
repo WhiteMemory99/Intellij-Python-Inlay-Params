@@ -3,21 +3,21 @@
 package space.whitememory.pythoninlayparams.types.hints
 
 import com.intellij.psi.PsiElement
-import com.intellij.util.containers.toArray
 import com.jetbrains.python.PyNames
 import com.jetbrains.python.codeInsight.typing.PyTypingTypeProvider
-import com.jetbrains.python.psi.PyClass
 import com.jetbrains.python.psi.PyElement
 import com.jetbrains.python.psi.PyFunction
 import com.jetbrains.python.psi.PyLambdaExpression
 import com.jetbrains.python.psi.types.*
 
 enum class HintGenerator {
-    UNION_TYPE() {
-        override fun handleType(element: PyElement, type: PyType?, typeEvalContext: TypeEvalContext): List<InlayInfoDetails>? {
-            if (type !is PyUnionType) {
-                return null
-            }
+    UNION_TYPE {
+        override fun handleType(
+            element: PyElement,
+            type: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): List<InlayInfoDetails>? {
+            if (type !is PyUnionType) return null
 
             val generatedValues = type.members
                 .filterNotNull()
@@ -48,11 +48,13 @@ enum class HintGenerator {
         }
     },
 
-    ASYNC_TYPE() {
-        override fun handleType(element: PyElement, type: PyType?, typeEvalContext: TypeEvalContext): List<InlayInfoDetails>? {
-            if (type == null || element !is PyFunction) {
-                return null
-            }
+    ASYNC_TYPE {
+        override fun handleType(
+            element: PyElement,
+            type: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): List<InlayInfoDetails>? {
+            if (type == null || element !is PyFunction) return null
 
             if (type is PyCollectionType && type.classQName == PyTypingTypeProvider.COROUTINE && element.isAsync) {
                 return generateTypeHintText(
@@ -64,8 +66,12 @@ enum class HintGenerator {
         }
     },
 
-    COLLECTION_TYPE() {
-        override fun handleType(element: PyElement, type: PyType?, typeEvalContext: TypeEvalContext): List<InlayInfoDetails>? {
+    COLLECTION_TYPE {
+        override fun handleType(
+            element: PyElement,
+            type: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): List<InlayInfoDetails>? {
             if (
                 type is PyCollectionType
                 && type.name != null
@@ -87,7 +93,8 @@ enum class HintGenerator {
                     )
                 }
 
-                val elements = type.elementTypes.mapNotNull { generateTypeHintText(element, it, typeEvalContext) }.flatten()
+                val elements =
+                    type.elementTypes.mapNotNull { generateTypeHintText(element, it, typeEvalContext) }.flatten()
 
                 if (elements.isEmpty()) {
                     return listOf(
@@ -110,11 +117,13 @@ enum class HintGenerator {
         }
     },
 
-    TUPLE_TYPE() {
-        override fun handleType(element: PyElement, type: PyType?, typeEvalContext: TypeEvalContext): List<InlayInfoDetails>? {
-            if (type !is PyTupleType) {
-                return null
-            }
+    TUPLE_TYPE {
+        override fun handleType(
+            element: PyElement,
+            type: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): List<InlayInfoDetails>? {
+            if (type !is PyTupleType) return null
 
             val baseInlayDetail = resolvePsiReference(type, PyNames.TUPLE)
 
@@ -151,14 +160,15 @@ enum class HintGenerator {
         }
     },
 
-    CLASS_TYPE() {
-        override fun handleType(element: PyElement, type: PyType?, typeEvalContext: TypeEvalContext): List<InlayInfoDetails>? {
-            if (type !is PyClassType) {
-                return null
-            }
+    CLASS_TYPE {
+        override fun handleType(
+            element: PyElement,
+            type: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): List<InlayInfoDetails>? {
+            if (type !is PyClassType) return null
 
             val baseInlayDetail = resolvePsiReference(type, type.declarationElement?.name!!)
-
             val classInlayDetails = listOf(InlayInfoDetails(baseInlayDetail))
 
             if (type.isDefinition) {
@@ -170,19 +180,19 @@ enum class HintGenerator {
                 return listOf(inlayDetail)
             }
 
-            if (!type.isDefinition) {
-                return classInlayDetails
-            }
+            if (!type.isDefinition) return classInlayDetails
 
             return null
         }
     },
 
-    FUNCTION_TYPE() {
-        override fun handleType(element: PyElement, type: PyType?, typeEvalContext: TypeEvalContext): List<InlayInfoDetails>? {
-            if (type !is PyFunctionType) {
-                return null
-            }
+    FUNCTION_TYPE {
+        override fun handleType(
+            element: PyElement,
+            type: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): List<InlayInfoDetails>? {
+            if (type !is PyFunctionType) return null
 
             val parametersText = when (type.callable) {
                 is PyLambdaExpression -> type.callable.parameterList.getPresentableText(false, typeEvalContext)
@@ -213,15 +223,23 @@ enum class HintGenerator {
         }
     },
 
-    ANY_TYPE() {
-        override fun handleType(element: PyElement, type: PyType?, typeEvalContext: TypeEvalContext): List<InlayInfoDetails> {
+    ANY_TYPE {
+        override fun handleType(
+            element: PyElement,
+            type: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): List<InlayInfoDetails> {
             val baseInlayDetail = resolvePsiReference(type, type?.name ?: PyNames.UNKNOWN_TYPE)
 
             return listOf(InlayInfoDetails(baseInlayDetail))
         }
     };
 
-    abstract fun handleType(element: PyElement, type: PyType?, typeEvalContext: TypeEvalContext): List<InlayInfoDetails>?
+    abstract fun handleType(
+        element: PyElement,
+        type: PyType?,
+        typeEvalContext: TypeEvalContext
+    ): List<InlayInfoDetails>?
 
     companion object {
 
@@ -230,13 +248,17 @@ enum class HintGenerator {
                 return PsiInlayInfoDetail(name, it)
             } ?: TextInlayInfoDetail(name)
         }
-        fun generateTypeHintText(element: PyElement, type: PyType?, typeEvalContext: TypeEvalContext): List<InlayInfoDetails> =
+
+        fun generateTypeHintText(
+            element: PyElement,
+            type: PyType?,
+            typeEvalContext: TypeEvalContext
+        ): List<InlayInfoDetails> =
             values().firstNotNullOf { it.handleType(element, type, typeEvalContext) }
     }
 }
 
 
-@Suppress("UnstableApiUsage")
 data class InlayInfoDetails(
     val rootInlayInfo: InlayInfoDetail?,
     val details: List<InlayInfoDetails> = listOf(),
@@ -246,5 +268,5 @@ data class InlayInfoDetails(
 
 sealed class InlayInfoDetail(val text: String)
 
-class TextInlayInfoDetail(text: String): InlayInfoDetail(text)
-class PsiInlayInfoDetail(text: String, val element: PsiElement): InlayInfoDetail(text)
+class TextInlayInfoDetail(text: String) : InlayInfoDetail(text)
+class PsiInlayInfoDetail(text: String, val element: PsiElement) : InlayInfoDetail(text)

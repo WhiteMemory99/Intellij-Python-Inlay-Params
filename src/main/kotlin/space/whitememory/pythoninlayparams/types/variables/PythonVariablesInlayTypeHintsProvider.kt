@@ -9,16 +9,13 @@ import javax.swing.JComponent
 
 @Suppress("UnstableApiUsage")
 class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariablesInlayTypeHintsProvider.Settings> {
-    companion object {
-        private val settingsKey: SettingsKey<Settings> = SettingsKey("python.inlay.types")
-    }
-
+    
     data class Settings(
         var showClassAttributeHints: Boolean = false,
         var showGeneralHints: Boolean = false,
     )
 
-    override val key: SettingsKey<Settings> = settingsKey
+    override val key: SettingsKey<Settings> = SettingsKey("python.inlay.types")
     override val name = "Type annotations"
     override val description = "Show the type annotations for variables"
     override val previewText = null
@@ -44,9 +41,9 @@ class PythonVariablesInlayTypeHintsProvider : InlayHintsProvider<PythonVariables
         )
     }
 
-    override fun getCaseDescription(case: ImmediateConfigurable.Case): String? = when (case.id) {
+    override fun getCaseDescription(case: ImmediateConfigurable.Case) = when (case.id) {
         "hints.class.attributes" -> "Show type hints for class attributes."
-        "hints.general" -> """Enable\Disable type hints for variables."""
+        "hints.general" -> "Enable type hints for variables."
         else -> null
     }
 

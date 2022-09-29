@@ -12,35 +12,21 @@ import space.whitememory.pythoninlayparams.types.hints.HintResolver
 
 @Suppress("UnstableApiUsage")
 class PythonVariablesInlayTypeHintsCollector(
-    editor: Editor,
-    override val settings: PythonVariablesInlayTypeHintsProvider.Settings
-) :
-    AbstractPythonInlayTypeHintsCollector(editor, settings) {
-
-    override fun validateExpression(element: PsiElement): Boolean {
-        return element is PyTargetExpression
-    }
+    editor: Editor, private val settings: PythonVariablesInlayTypeHintsProvider.Settings
+) : AbstractPythonInlayTypeHintsCollector(editor) {
 
     override val textBeforeTypeHint = ":"
 
+    override fun validateExpression(element: PsiElement) = element is PyTargetExpression
+
     override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {
-        if (!super.collect(element, editor, sink)) {
-            return false
-        }
-
-        if (!settings.showGeneralHints) {
-            return false
-        }
-
-        if (!validateExpression(element)) {
-            return true
-        }
+        if (!element.isValid || element.project.isDefault) return false
+        // TODO: Rework settings
+        if (!settings.showGeneralHints) return false
+        if (!validateExpression(element)) return true
 
         val typeEvalContext = getTypeEvalContext(editor, element)
-
-        if (HintResolver.resolve(element as PyTargetExpression, typeEvalContext, settings)) {
-            return true
-        }
+        if (HintResolver.resolve(element as PyTargetExpression, typeEvalContext, settings)) return true
 
         try {
             renderTypeHint(element, typeEvalContext, sink)
