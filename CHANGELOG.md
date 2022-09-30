@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- `TypedDict` subclasses being displayed as a regular dict in type hints
 
 ## [0.3.0] - 2022-09-25
 ### Added

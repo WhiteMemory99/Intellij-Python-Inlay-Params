@@ -72,6 +72,7 @@ enum class HintGenerator {
             type: PyType?,
             typeEvalContext: TypeEvalContext
         ): List<InlayInfoDetails>? {
+            if (type is PyTypedDictType && !type.isInferred()) return null
             if (
                 type is PyCollectionType
                 && type.name != null
