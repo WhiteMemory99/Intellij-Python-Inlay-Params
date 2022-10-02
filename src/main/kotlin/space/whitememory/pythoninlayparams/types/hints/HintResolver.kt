@@ -10,17 +10,6 @@ import space.whitememory.pythoninlayparams.types.variables.PythonVariablesInlayT
 
 enum class HintResolver {
 
-    UNDERSCORE_HINT {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
-
-        override fun shouldShowTypeHint(
-            element: PyTargetExpression,
-            typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext,
-            settings: PythonVariablesInlayTypeHintsProvider.Settings
-        ): Boolean = element.name != PyNames.UNDERSCORE
-    },
-
     GLOBALS_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
@@ -35,17 +24,6 @@ enum class HintResolver {
 
             return assignedValue.callee?.name !in builtinMethods
         }
-    },
-
-    QUALIFIED_HINT {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
-
-        override fun shouldShowTypeHint(
-            element: PyTargetExpression,
-            typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext,
-            settings: PythonVariablesInlayTypeHintsProvider.Settings
-        ): Boolean = !element.isQualified
     },
 
     GENERAL_HINT {
@@ -401,6 +379,7 @@ enum class HintResolver {
         }
 
         private fun isElementInsideTypingModule(element: PyElement): Boolean {
+            // REFACTOR: Replace with .QName
             PyUtil.getContainingPyFile(element)?.let {
                 return it.name == "${PyTypingTypeProvider.TYPING}${PyNames.DOT_PYI}"
                         || it.name == "typing_extensions${PyNames.DOT_PY}"
@@ -417,6 +396,9 @@ enum class HintResolver {
         }
 
         fun shouldShowTypeHint(element: PyElement, typeEvalContext: TypeEvalContext): Boolean {
+            if (element.name == PyNames.UNDERSCORE) return false
+            if (element is PyTargetExpression && element.isQualified) return false
+
             val typeAnnotation = getExpressionAnnotationType(element, typeEvalContext)
 
             if (
