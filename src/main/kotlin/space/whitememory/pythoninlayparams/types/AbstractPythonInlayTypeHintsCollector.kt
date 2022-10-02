@@ -26,9 +26,13 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor) :
 
     protected fun renderTypeHint(element: PyElement, typeEvalContext: TypeEvalContext, sink: InlayHintsSink) {
         val typeAnnotation = HintResolver.getExpressionAnnotationType(element, typeEvalContext)
-        val hintName =
-            HintGenerator.generateTypeHintText(element, typeAnnotation, typeEvalContext).takeIf { it.isNotEmpty() }
-                ?: return
+        val hintName = HintGenerator.generateTypeHintText(
+            element, typeAnnotation, typeEvalContext
+        )
+
+        if (hintName.isEmpty()) {
+            return
+        }
 
         val resolvedHintName = resolveInlayPresentation(hintName)
         displayTypeHint(element, sink, resolvedHintName)

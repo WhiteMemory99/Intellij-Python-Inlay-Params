@@ -2,6 +2,7 @@ package space.whitememory.pythoninlayparams.types.hints
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.jetbrains.python.PyNames
+import com.jetbrains.python.PyTokenTypes
 import com.jetbrains.python.codeInsight.typing.PyTypingTypeProvider
 import com.jetbrains.python.psi.*
 import com.jetbrains.python.psi.impl.PyCallExpressionHelper
@@ -9,17 +10,6 @@ import com.jetbrains.python.psi.types.*
 import space.whitememory.pythoninlayparams.types.variables.PythonVariablesInlayTypeHintsProvider
 
 enum class HintResolver {
-
-    UNDERSCORE_HINT {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
-
-        override fun shouldShowTypeHint(
-            element: PyTargetExpression,
-            typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext,
-            settings: PythonVariablesInlayTypeHintsProvider.Settings
-        ): Boolean = element.name != PyNames.UNDERSCORE
-    },
 
     GLOBALS_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
@@ -37,17 +27,6 @@ enum class HintResolver {
         }
     },
 
-    QUALIFIED_HINT {
-        override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
-
-        override fun shouldShowTypeHint(
-            element: PyTargetExpression,
-            typeAnnotation: PyType?,
-            typeEvalContext: TypeEvalContext,
-            settings: PythonVariablesInlayTypeHintsProvider.Settings
-        ): Boolean = !element.isQualified
-    },
-
     GENERAL_HINT {
         override fun isApplicable(settings: PythonVariablesInlayTypeHintsProvider.Settings) = true
 
@@ -60,6 +39,10 @@ enum class HintResolver {
             val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
             if (assignedValue is PyPrefixExpression) {
+                if (assignedValue.operator == PyTokenTypes.AWAIT_KEYWORD) {
+                    return shouldShowTypeHint(element, typeEvalContext)
+                }
+
                 return shouldShowTypeHint(assignedValue.operand as PyElement, typeEvalContext)
             }
 
@@ -76,9 +59,13 @@ enum class HintResolver {
             typeEvalContext: TypeEvalContext,
             settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
+            val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
+
+            // Handle case `var = async_func()` without `await` keyword
+            if (assignedValue is PyCallExpression) return true
+
             if (typeAnnotation is PyClassType && isElementInsideTypingModule(typeAnnotation.pyClass)) return false
 
-            val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
             if (assignedValue is PySubscriptionExpression) {
                 assignedValue.rootOperand.reference?.resolve()?.let {
@@ -401,9 +388,10 @@ enum class HintResolver {
         }
 
         private fun isElementInsideTypingModule(element: PyElement): Boolean {
-            PyUtil.getContainingPyFile(element)?.let {
-                return it.name == "${PyTypingTypeProvider.TYPING}${PyNames.DOT_PYI}"
-                        || it.name == "typing_extensions${PyNames.DOT_PY}"
+            if (element is PyQualifiedNameOwner) {
+                element.qualifiedName?.let {
+                    return it.startsWith("${PyTypingTypeProvider.TYPING}.") || it.startsWith("typing_extensions.")
+                }
             }
 
             return false
@@ -416,7 +404,13 @@ enum class HintResolver {
             return null
         }
 
-        fun shouldShowTypeHint(element: PyElement, typeEvalContext: TypeEvalContext): Boolean {
+        fun shouldShowTypeHint(
+            element: PyElement,
+            typeEvalContext: TypeEvalContext
+        ): Boolean {
+            if (element.name == PyNames.UNDERSCORE) return false
+            if (element is PyTargetExpression && element.isQualified) return false
+
             val typeAnnotation = getExpressionAnnotationType(element, typeEvalContext)
 
             if (
