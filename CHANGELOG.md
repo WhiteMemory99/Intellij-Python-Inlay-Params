@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.3.1] - 2022-10-02
 ### Fixed
 - `TypedDict` subclasses being displayed as a regular dict in type hints
 - Several bugs around `async` functions with type hints
