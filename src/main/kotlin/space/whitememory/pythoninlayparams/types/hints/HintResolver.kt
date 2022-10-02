@@ -61,7 +61,7 @@ enum class HintResolver {
         ): Boolean {
             val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
-            // Handle case  `var = async_func()` without `await` keyword
+            // Handle case `var = async_func()` without `await` keyword
             if (assignedValue is PyCallExpression) return true
 
             if (typeAnnotation is PyClassType && isElementInsideTypingModule(typeAnnotation.pyClass)) return false
@@ -388,10 +388,9 @@ enum class HintResolver {
         }
 
         private fun isElementInsideTypingModule(element: PyElement): Boolean {
-            // REFACTOR: Replace with .QName
-            PyUtil.getContainingPyFile(element)?.let {
-                return it.name == "${PyTypingTypeProvider.TYPING}${PyNames.DOT_PYI}"
-                        || it.name == "typing_extensions${PyNames.DOT_PY}"
+            if (element is PyQualifiedNameOwner && element.qualifiedName != null) {
+                return element.qualifiedName!!.startsWith("${PyTypingTypeProvider.TYPING}.")
+                        || element.qualifiedName!!.startsWith("typing_extensions.")
             }
 
             return false
