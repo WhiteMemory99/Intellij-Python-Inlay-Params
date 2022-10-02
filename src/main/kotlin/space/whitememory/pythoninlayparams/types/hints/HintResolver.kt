@@ -66,20 +66,19 @@ enum class HintResolver {
             // Handle case 'var = await async_func()` which return `Coroutine` inside
             if (assignedValue is PyPrefixExpression && assignedValue.operator == PyTokenTypes.AWAIT_KEYWORD) return true
 
-            if (typeAnnotation is PyClassType && isElementInsideTypingModule(typeAnnotation.pyClass)) return false
-
-
             if (assignedValue is PySubscriptionExpression) {
                 assignedValue.rootOperand.reference?.resolve()?.let {
-                    if (isElementInsideTypingModule(it as PyElement)) return false
+                    return !isElementInsideTypingModule(it as PyElement)
                 }
             }
 
             if (assignedValue is PyReferenceExpression) {
                 assignedValue.reference.resolve()?.let {
-                    if (isElementInsideTypingModule(it as PyElement)) return false
+                    return !isElementInsideTypingModule(it as PyElement)
                 }
             }
+
+            if (typeAnnotation is PyClassType && isElementInsideTypingModule(typeAnnotation.pyClass)) return false
 
             return true
         }
