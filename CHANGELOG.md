@@ -3,6 +3,8 @@
 ## [Unreleased]
 ### Fixed
 - `TypedDict` subclasses being displayed as a regular dict in type hints
+- Several bugs around `async` functions with type hints
+- Other minor type hints corrections
 
 ## [0.3.0] - 2022-09-25
 ### Added

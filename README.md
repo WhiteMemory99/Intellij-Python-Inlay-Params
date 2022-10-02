@@ -37,13 +37,13 @@ Pretty much any expression is supported:
 
 <!-- Plugin description end -->
 
-**Look at the examples below to see how it works.**
+**Scroll to the demo at the bottom to see how it works.**
 
 ## Settings
 
 ### Parameter hints
 
-To disable them entirely, follow this path:
+To enable/disable them entirely, follow this path:
 
 <kbd>Settings</kbd> -> <kbd>Editor</kbd> -> <kbd>Inlay Hints</kbd> -> <kbd>Parameter names</kbd> -> <kbd>Python</kbd>
 
@@ -54,12 +54,13 @@ hide a hint if a parameter name is completely overlapped by its argument.
 
 ### Type annotation hints (BETA)
 
-To disable them entirely, follow this path:
+_Partially disabled by default._  
+To enable/disable them entirely, follow this path:
 
 <kbd>Settings</kbd> -> <kbd>Editor</kbd> -> <kbd>Inlay Hints</kbd> -> <kbd>Types</kbd> -> <kbd>Python</kbd>
 
 There are two main options under this partition: `Type annotations` and `Function return types`.  
-Look at the demo screenshot to see them in work _(last section)_.
+Look at the demo screenshot below to see them in work _(last section)_.
 
 ## Demo Screenshot
 
