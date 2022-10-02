@@ -48,24 +48,6 @@ enum class HintGenerator {
         }
     },
 
-    ASYNC_TYPE {
-        override fun handleType(
-            element: PyElement,
-            type: PyType?,
-            typeEvalContext: TypeEvalContext
-        ): List<InlayInfoDetails>? {
-            if (type == null || element !is PyFunction) return null
-
-            if (type is PyCollectionType && type.classQName == PyTypingTypeProvider.COROUTINE && element.isAsync) {
-                return generateTypeHintText(
-                    element, PyTypingTypeProvider.coroutineOrGeneratorElementType(type)?.get(), typeEvalContext
-                )
-            }
-
-            return null
-        }
-    },
-
     COLLECTION_TYPE {
         override fun handleType(
             element: PyElement,
