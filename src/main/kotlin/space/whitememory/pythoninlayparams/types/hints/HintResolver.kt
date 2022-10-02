@@ -400,7 +400,13 @@ enum class HintResolver {
         }
 
         fun getExpressionAnnotationType(element: PyElement, typeEvalContext: TypeEvalContext): PyType? {
-            if (element is PyFunction) return element.getReturnStatementType(typeEvalContext)
+            if (element is PyFunction) {
+                if (element.isAsync && !element.isGenerator) {
+                    return element.getReturnStatementType(typeEvalContext)
+                }
+
+                return typeEvalContext.getReturnType(element)
+            }
             if (element is PyTargetExpression) return typeEvalContext.getType(element)
 
             return null
@@ -428,16 +434,6 @@ enum class HintResolver {
                 return !typeAnnotation.members.all {
                     PyTypeChecker.isUnknown(it, false, typeEvalContext) || (it is PyNoneType || it == null)
                 }
-            }
-
-            if (element is PyFunction && element.isAsync) {
-                val functionType = element.getReturnStatementType(typeEvalContext)
-
-                if (functionType is PyNoneType || PyTypeChecker.isUnknown(functionType, false, typeEvalContext)) {
-                    return false
-                }
-
-                return true
             }
 
             if (PyTypeChecker.isUnknown(typeAnnotation, false, typeEvalContext)) return false
