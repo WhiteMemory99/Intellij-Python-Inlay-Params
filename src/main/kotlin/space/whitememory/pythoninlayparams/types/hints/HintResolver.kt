@@ -63,6 +63,8 @@ enum class HintResolver {
 
             // Handle case `var = async_func()` without `await` keyword
             if (assignedValue is PyCallExpression) return true
+            // Handle case 'var = await async_func()` which return `Coroutine` inside
+            if (assignedValue is PyPrefixExpression && assignedValue.operator == PyTokenTypes.AWAIT_KEYWORD) return true
 
             if (typeAnnotation is PyClassType && isElementInsideTypingModule(typeAnnotation.pyClass)) return false
 
@@ -398,7 +400,13 @@ enum class HintResolver {
         }
 
         fun getExpressionAnnotationType(element: PyElement, typeEvalContext: TypeEvalContext): PyType? {
-            if (element is PyFunction) return typeEvalContext.getReturnType(element)
+            if (element is PyFunction) {
+                if (element.isAsync && !element.isGenerator) {
+                    return element.getReturnStatementType(typeEvalContext)
+                }
+
+                return typeEvalContext.getReturnType(element)
+            }
             if (element is PyTargetExpression) return typeEvalContext.getType(element)
 
             return null
@@ -425,14 +433,6 @@ enum class HintResolver {
             if (typeAnnotation is PyUnionType) {
                 return !typeAnnotation.members.all {
                     PyTypeChecker.isUnknown(it, false, typeEvalContext) || (it is PyNoneType || it == null)
-                }
-            }
-
-            if (element is PyFunction && element.isAsync) {
-                val functionType = PyTypingTypeProvider.coroutineOrGeneratorElementType(typeAnnotation)?.get()
-
-                if (functionType is PyNoneType || PyTypeChecker.isUnknown(functionType, false, typeEvalContext)) {
-                    return false
                 }
             }
 
