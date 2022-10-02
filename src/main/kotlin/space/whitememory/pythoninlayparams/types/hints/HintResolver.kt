@@ -388,9 +388,10 @@ enum class HintResolver {
         }
 
         private fun isElementInsideTypingModule(element: PyElement): Boolean {
-            if (element is PyQualifiedNameOwner && element.qualifiedName != null) {
-                return element.qualifiedName!!.startsWith("${PyTypingTypeProvider.TYPING}.")
-                        || element.qualifiedName!!.startsWith("typing_extensions.")
+            if (element is PyQualifiedNameOwner) {
+                element.qualifiedName?.let {
+                    return it.startsWith("${PyTypingTypeProvider.TYPING}.") || it.startsWith("typing_extensions.")
+                }
             }
 
             return false
