@@ -2,6 +2,7 @@ package space.whitememory.pythoninlayparams.types.hints
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.jetbrains.python.PyNames
+import com.jetbrains.python.PyTokenTypes
 import com.jetbrains.python.codeInsight.typing.PyTypingTypeProvider
 import com.jetbrains.python.psi.*
 import com.jetbrains.python.psi.impl.PyCallExpressionHelper
@@ -38,6 +39,10 @@ enum class HintResolver {
             val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
             if (assignedValue is PyPrefixExpression) {
+                if (assignedValue.operator == PyTokenTypes.AWAIT_KEYWORD) {
+                    return shouldShowTypeHint(element, typeEvalContext)
+                }
+
                 return shouldShowTypeHint(assignedValue.operand as PyElement, typeEvalContext)
             }
 
@@ -54,9 +59,13 @@ enum class HintResolver {
             typeEvalContext: TypeEvalContext,
             settings: PythonVariablesInlayTypeHintsProvider.Settings
         ): Boolean {
+            val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
+
+            // Handle case  `var = async_func()` without `await` keyword
+            if (assignedValue is PyCallExpression) return true
+
             if (typeAnnotation is PyClassType && isElementInsideTypingModule(typeAnnotation.pyClass)) return false
 
-            val assignedValue = PyUtil.peelArgument(element.findAssignedValue())
 
             if (assignedValue is PySubscriptionExpression) {
                 assignedValue.rootOperand.reference?.resolve()?.let {
@@ -395,7 +404,10 @@ enum class HintResolver {
             return null
         }
 
-        fun shouldShowTypeHint(element: PyElement, typeEvalContext: TypeEvalContext): Boolean {
+        fun shouldShowTypeHint(
+            element: PyElement,
+            typeEvalContext: TypeEvalContext
+        ): Boolean {
             if (element.name == PyNames.UNDERSCORE) return false
             if (element is PyTargetExpression && element.isQualified) return false
 
