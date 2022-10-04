@@ -20,6 +20,11 @@ class PythonFunctionReturnTypesTest : PythonAbstractInlayHintsTestCase() {
             
         def get_union()<# [->  [int  |  str]] #>:
             return 1 or ""
+            
+       def get_optional()<# [->  [[list [ A ]]  |  None]] #>:
+            if True:
+                return [A()]
+            return None
     """.trimIndent()
     )
 
