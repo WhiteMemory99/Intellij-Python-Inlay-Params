@@ -54,6 +54,15 @@ class PythonVariableTypesTest : PythonAbstractInlayHintsTestCase() {
             
         def get_now():
             return datetime.datetime.now()
+            
+        def get_any_dict():
+            return {}
+            
+        def get_complex_dict():
+            return {1: A(), 2: None, 3: [], 4: tuple()}
+            
+        def get_complex_list():
+            return [1, [[], 1, '3'], '', []]
     """.trimIndent()
 
     fun testSimple() = doTest(
@@ -61,6 +70,7 @@ class PythonVariableTypesTest : PythonAbstractInlayHintsTestCase() {
         x1<# [:  int] #> = get_int()
         x2<# [:  [[list [ A ]]  |  None]] #> = get_optional()
         x3<# [:  TestTyped] #> = get_typed_dict()
+        x4<# [:  dict] #> = get_any_dict()
         
         x7<# [:  [A  |  None]] #> = A() or None
         x8<# [:  [A  |  None]] #> = A() and None
@@ -98,7 +108,9 @@ class PythonVariableTypesTest : PythonAbstractInlayHintsTestCase() {
         g4 = A.from_val(1)
         g5 = Union[int, str]
         # g6 = UnionChild[int, str]
+
         g7 = {k: None for k, _ in range(10)}
+        g8 = {1: A(), 2: None, 3: [], 4: tuple()}
         
         h1 = datetime.datetime.now()
         h2 = datetime.datetime()
@@ -109,7 +121,7 @@ class PythonVariableTypesTest : PythonAbstractInlayHintsTestCase() {
         """
         x<# [:  [Coroutine [ Any ,  Any ,  int ]]] #> = coro()
         y<# [:  [Coroutine [ Any ,  Any ,  int ]]] #> = x
-        z<# [:  int] #> = await x
+        z<# [:  int] #> = await y
         
         f = 1
         g = f
@@ -120,7 +132,9 @@ class PythonVariableTypesTest : PythonAbstractInlayHintsTestCase() {
     fun testComplex() = doTest(
         """
         x1<# [:  [[list [ A ]]  |  None  |  list  | ...]] #> = get_optional() or [] or {}
-        long_types<# [:  [list [ [int  |  [list [ [list  |  int  | ...] ]]  | ...] ]]] #> = [1, [[], 1, '3'], '', []]
+        complex_list<# [:  [list [ [int  |  [list [ [list  |  int  | ...] ]]  | ...] ]]] #> = get_complex_list()
+        complex_dict<# [:  [dict [ int ,  [A  |  None  |  list  | ...] ]]] #> = get_complex_dict()
+        
         
         coro_callable<# [:  [()  ->  ( [Coroutine [ Any ,  Any ,  int ]] )]] #> = coro
         one_coro<# [:  [Coroutine [ Any ,  Any ,  int ]]] #> = await get_coro()

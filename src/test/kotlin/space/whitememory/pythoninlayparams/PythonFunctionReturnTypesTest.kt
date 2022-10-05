@@ -57,7 +57,7 @@ class PythonFunctionReturnTypesTest : PythonAbstractInlayHintsTestCase() {
         def check_filled_hint() -> str:
             return ""
  
-        def async_check_filled_hint() -> str:
+        async def async_check_filled_hint() -> str:
             return ""
     """.trimIndent()
     )
@@ -158,7 +158,7 @@ class PythonFunctionReturnTypesTest : PythonAbstractInlayHintsTestCase() {
         """
         def
         
-        def test  
+        def test
               
         def test()
         
