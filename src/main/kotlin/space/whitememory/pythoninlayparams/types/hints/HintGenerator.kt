@@ -252,4 +252,20 @@ data class InlayInfoDetails(
 sealed class InlayInfoDetail(val text: String)
 
 class TextInlayInfoDetail(text: String) : InlayInfoDetail(text)
-class PsiInlayInfoDetail(text: String, val element: PsiElement) : InlayInfoDetail(text)
+class PsiInlayInfoDetail(text: String, val element: PsiElement) : InlayInfoDetail(text) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+
+        if (other !is PsiInlayInfoDetail) return false
+
+        if (text != other.text) return false
+
+        if (element != other.element) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return element.hashCode()
+    }
+}

@@ -43,7 +43,7 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor) :
         separator: String = " | ",
         limit: Int? = 3
     ): InlayPresentation {
-        val convertedInlayInfoDetails = infoDetails.map { getInlayPresentationForInlayInfoDetails(it) }
+        val convertedInlayInfoDetails = infoDetails.distinct().map { getInlayPresentationForInlayInfoDetails(it) }
 
         return factory.seq(*separatePresentation(convertedInlayInfoDetails, separator, limit).toTypedArray())
     }
