@@ -1,12 +1,13 @@
+import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.date
 import org.jetbrains.changelog.markdownToHTML
 
 fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.6.20"
-    id("org.jetbrains.intellij") version "1.9.0"
-    id("org.jetbrains.changelog") version "1.3.1"
+    id("org.jetbrains.kotlin.jvm") version "1.8.0"
+    id("org.jetbrains.intellij") version "1.12.0"
+    id("org.jetbrains.changelog") version "2.0.0"
 }
 
 group = properties("pluginGroup")
@@ -31,9 +32,9 @@ intellij {
 }
 
 changelog {
-    version.set(properties("pluginVersion"))
     header.set(provider { "[${version.get()}] - ${date()}" })
     groups.set(emptyList())
+    repositoryUrl.set(properties("pluginRepositoryUrl"))
 }
 
 tasks {
@@ -51,20 +52,26 @@ tasks {
         untilBuild.set(properties("pluginUntilBuild"))
 
         changeNotes.set(provider {
-            changelog.run {
-                getOrNull(properties("pluginVersion")) ?: getLatest()
-            }.toHTML()
+            with(changelog) {
+                renderItem(
+                    getOrNull(properties("pluginVersion"))
+                        ?: runCatching { getLatest() }.getOrElse { getUnreleased() },
+                    Changelog.OutputType.HTML,
+                )
+            }
         })
 
-        pluginDescription.set(file("README.md").readText().lines().run {
-            val start = "<!-- Plugin description -->"
-            val end = "<!-- Plugin description end -->"
+        pluginDescription.set(
+            file("README.md").readText().lines().run {
+                val start = "<!-- Plugin description -->"
+                val end = "<!-- Plugin description end -->"
 
-            if (!containsAll(listOf(start, end))) {
-                throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
-            }
-            subList(indexOf(start) + 1, indexOf(end))
-        }.joinToString("\n").run { markdownToHTML(this) })
+                if (!containsAll(listOf(start, end))) {
+                    throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
+                }
+                subList(indexOf(start) + 1, indexOf(end))
+            }.joinToString("\n").let { markdownToHTML(it) }
+        )
     }
 
     signPlugin {
