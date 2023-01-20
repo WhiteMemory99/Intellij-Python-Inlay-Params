@@ -1,6 +1,11 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Support for 2023.1
+
+### Fixed
+- Incorrect `Literal` behavior with type hints
 
 ## [0.3.1] - 2022-10-02
 ### Fixed
