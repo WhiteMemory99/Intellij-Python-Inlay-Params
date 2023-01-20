@@ -270,8 +270,8 @@ enum class HintResolver {
                 return resolvedClass.name != typeAnnotation?.name
             }
 
-            return typeAnnotation?.isBuiltin == true
-                    && (typeAnnotation as PyCollectionType).elementTypes.filterNotNull().isNotEmpty()
+            val collectionType = (typeAnnotation as? PyCollectionType) ?: return false
+            return collectionType.isBuiltin && collectionType.elementTypes.filterNotNull().isNotEmpty()
         }
     },
 
