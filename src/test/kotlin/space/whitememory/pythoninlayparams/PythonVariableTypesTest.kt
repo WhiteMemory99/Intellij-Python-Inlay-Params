@@ -183,6 +183,19 @@ class PythonVariableTypesTest : PythonAbstractInlayHintsTestCase() {
     """.trimIndent()
     )
 
+    fun testIterableHints() = doTest(
+        """
+        item_set<# [:  [set [ str ]]] #> = set()
+        x<# [:  None] #> = item_set.add("1")
+        
+        explicit_item_set: set[str] = set()
+        y<# [:  None] #> = explicit_item_set.add("1")
+        
+        unclear_item_set: set = set()
+        z<# [:  None] #> = unclear_item_set.add("1")
+    """.trimIndent()
+    )
+
     private fun doTest(text: String) {
         testProvider(
             "foo.py",

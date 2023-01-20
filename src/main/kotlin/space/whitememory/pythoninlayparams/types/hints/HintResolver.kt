@@ -264,6 +264,8 @@ enum class HintResolver {
 
             if (assignmentValue !is PyCallExpression) return true
 
+            if (typeAnnotation is PyNoneType) return true
+
             val resolvedClass = PyCallExpressionHelper.resolveCalleeClass(assignmentValue) ?: return true
 
             if (!collectionNames.contains(resolvedClass.name)) {
