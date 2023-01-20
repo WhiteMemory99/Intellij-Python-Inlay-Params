@@ -6,7 +6,7 @@
 
 ### Fixed
 - Incorrect `Literal` behavior with type hints
-- `set[]` type hint were causing exceptions when declared explicitly
+- `set[]` type hint were causing exceptions when declared explicitly [[#31](https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params/pull/31)]
 
 ## [0.3.1] - 2022-10-02
 ### Fixed
