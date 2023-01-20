@@ -6,6 +6,7 @@
 
 ### Fixed
 - Incorrect `Literal` behavior with type hints
+- `set[]` type hint were causing exceptions when declared explicitly
 
 ## [0.3.1] - 2022-10-02
 ### Fixed

@@ -4,9 +4,7 @@ package space.whitememory.pythoninlayparams.types.hints
 
 import com.intellij.psi.PsiElement
 import com.jetbrains.python.PyNames
-import com.jetbrains.python.codeInsight.typing.PyTypingTypeProvider
 import com.jetbrains.python.psi.PyElement
-import com.jetbrains.python.psi.PyFunction
 import com.jetbrains.python.psi.PyLambdaExpression
 import com.jetbrains.python.psi.types.*
 
