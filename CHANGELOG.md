@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Support for 2023.2. Please, note that this PyCharm version and older have built-in parameter hints that can be turned off in the same section.
+
 ## [[0.3.2]] - 2023-01-20
 
 ### Added
