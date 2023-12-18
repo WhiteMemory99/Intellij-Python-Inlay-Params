@@ -170,8 +170,9 @@ class PythonFunctionReturnTypesTest : PythonAbstractInlayHintsTestCase() {
     """.trimIndent()
     )
 
+    @Suppress("UnstableApiUsage")
     private fun doTest(text: String) {
-        testProvider(
+        doTestProvider(
             "foo.py", text, PythonFunctionInlayTypeHintsProvider()
         )
     }
