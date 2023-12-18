@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Support 2023.3
+
 ## [[0.3.3]] - 2023-08-16
 
 ### Added
