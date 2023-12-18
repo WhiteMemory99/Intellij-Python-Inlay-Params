@@ -4,6 +4,7 @@
 
 ### Added
 - Support 2023.3
+- An option to display parameter hints when there is only one parameter defined [[#42](https://github.com/WhiteMemory99/Intellij-Python-Inlay-Params/pull/42)]
 
 ## [[0.3.3]] - 2023-08-16
 
