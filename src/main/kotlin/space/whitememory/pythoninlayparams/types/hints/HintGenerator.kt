@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 package space.whitememory.pythoninlayparams.types.hints
 
 import com.intellij.psi.PsiElement
