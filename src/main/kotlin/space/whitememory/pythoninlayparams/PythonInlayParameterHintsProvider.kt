@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package space.whitememory.pythoninlayparams
 
 import com.intellij.codeInsight.hints.InlayInfo
@@ -14,12 +16,6 @@ import com.jetbrains.python.psi.types.TypeEvalContext
 @Suppress("UnstableApiUsage")
 class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
 
-    companion object {
-        val classHints = Option("hints.classes.parameters", { "Class hints" }, true)
-        val functionHints = Option("hints.functions.parameters", { "Function hints" }, true)
-        val hideOverlaps = Option("hints.overlaps.parameters", { "Hide overlaps" }, true)
-    }
-
     private val forbiddenBuiltinFiles = setOf("builtins.pyi", "typing.pyi")
 
     override fun getDefaultBlackList() = setOf<String>()
@@ -28,7 +24,7 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
 
     override fun getDescription() = "Help you pass correct arguments by showing parameter names at call sites"
 
-    override fun getSupportedOptions() = listOf(classHints, functionHints, hideOverlaps)
+    override fun getSupportedOptions() = listOf(classHints, functionHints, showOverlaps, showSingleHints)
 
     override fun getProperty(key: String?): String? {
         val prefix = "inlay.parameters.hints"
@@ -69,9 +65,9 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
             !it.isSelf && it.parameter !is PySingleStarParameter && it.parameter !is PySlashParameter
         } ?: return inlayInfos
 
-        // Don't need a hint if there's only one parameter,
-        // Make an exception for *args
-        if (resolvedParameters.size == 1 && !resolvedParameters[0].isPositionalContainer) return inlayInfos
+        // Don't need a hint if there's only one parameter, unless required by the settings or contains *args
+        if (resolvedParameters.size == 1 && !showSingleHints.isEnabled() && !resolvedParameters[0].isPositionalContainer)
+            return inlayInfos
 
         resolvedParameters.zip(element.arguments).forEach { (param, arg) ->
             val paramName = param.name ?: return@forEach
@@ -115,7 +111,7 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
             argument.name?.lowercase() ?: return true
         }
 
-        if (hideOverlaps.isEnabled() && paramName in argumentName) return false
+        if (!showOverlaps.isEnabled() && paramName in argumentName) return false
         return paramName != argumentName
     }
 
@@ -129,3 +125,8 @@ class PythonInlayParameterHintsProvider : InlayParameterHintsProvider {
         return fileName in forbiddenBuiltinFiles
     }
 }
+
+val classHints = Option("hints.classes.parameters", { "Class hints" }, true)
+val functionHints = Option("hints.functions.parameters", { "Function hints" }, true)
+val showOverlaps = Option("hints.overlaps.parameters", { "Show overlaps" }, false)
+val showSingleHints = Option("hints.single.parameters", { "Show single hints" }, false)
