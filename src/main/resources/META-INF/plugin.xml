@@ -8,8 +8,9 @@
     <depends>com.intellij.modules.python</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <codeInsight.inlayProvider language="Python" implementationClass="space.whitememory.pythoninlayparams.types.variables.PythonVariablesInlayTypeHintsProvider"/>
-        <codeInsight.inlayProvider language="Python" implementationClass="space.whitememory.pythoninlayparams.types.functions.PythonFunctionInlayTypeHintsProvider"/>
+        <codeInsight.declarativeInlayProvider language="Python" implementationClass="space.whitememory.pythoninlayparams.InlayHintsProvider"
+                                              providerId="python.implicit.types" group="TYPES_GROUP" isEnabledByDefault="true"
+                                              nameKey="python.variables.name" bundle="messages.InlayProperties" descriptionKey="python.variables.description"/>
         <codeInsight.parameterNameHints language="Python" implementationClass="space.whitememory.pythoninlayparams.PythonInlayParameterHintsProvider"/>
     </extensions>
 </idea-plugin>

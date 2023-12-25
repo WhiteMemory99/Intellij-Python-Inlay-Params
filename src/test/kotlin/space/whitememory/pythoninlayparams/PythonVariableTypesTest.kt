@@ -196,13 +196,11 @@ class PythonVariableTypesTest : PythonAbstractInlayHintsTestCase() {
     """.trimIndent()
     )
 
-    @Suppress("UnstableApiUsage")
     private fun doTest(text: String) {
         doTestProvider(
             "foo.py",
             "$testObjects\n$text",
-            PythonVariablesInlayTypeHintsProvider(),
-            PythonVariablesInlayTypeHintsProvider.Settings(showClassAttributeHints = true, showGeneralHints = true)
+            InlayHintsProvider(),
         )
     }
 }
