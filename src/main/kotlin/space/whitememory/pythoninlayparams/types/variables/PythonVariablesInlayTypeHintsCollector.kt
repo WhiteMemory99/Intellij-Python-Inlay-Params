@@ -26,7 +26,7 @@ class PythonVariablesInlayTypeHintsCollector(
         if (!validateExpression(element)) return true
 
         val typeEvalContext = getTypeEvalContext(editor, element)
-        if (HintResolver.resolve(element as PyTargetExpression, typeEvalContext, settings)) return true
+        if (HintResolver.resolve(element as PyTargetExpression, typeEvalContext)) return true
 
         try {
             renderTypeHint(element, typeEvalContext, sink)

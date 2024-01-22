@@ -34,8 +34,8 @@ abstract class AbstractPythonInlayTypeHintsCollector(editor: Editor) :
             return
         }
 
-        val resolvedHintName = resolveInlayPresentation(hintName)
-        displayTypeHint(element, sink, resolvedHintName)
+//        val resolvedHintName = resolveInlayPresentation(hintName)
+//        displayTypeHint(element, sink, resolvedHintName)
     }
 
     private fun resolveInlayPresentation(
