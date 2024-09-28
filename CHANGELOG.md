@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+– Support 2024.2
+
 ## [0.3.5] - 2024-01-24
 
 ### Added
